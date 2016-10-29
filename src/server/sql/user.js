@@ -6,19 +6,19 @@ var schemas = require("../db/schemas");
 var userSchema = schemas.users;
 
 var userSql = {
-    _createStatement : undefined,
+    _insertStatement : undefined,
     _findByUsernameStatement : undefined
 };
 
 userSql.setup = function(db) {
     // var promise = BPromise.resolve()
 
-    //     // create
+    //     // insert
     //     .then(DbUtil.prepare(userSchema.insert(
     //         userSchema.username.value(""),
     //         userSchema.password_hash.value("")), db))
     //     .then(function(st) {
-    //         userSql._createStatement = st;
+    //         userSql._insertStatement = st;
     //     })
 
     //     // find by username
@@ -33,13 +33,18 @@ userSql.setup = function(db) {
 };
 
 userSql.create = function(username, passwordHash) {
-    // return userSql._createStatement.runAsync([username, passwordHash])
-    //     .then(function() { return this.lastID });
+    // return userSql.insertRow(username, passwordHash);
     throw "Not implemented!";
 };
 
 userSql.findByUsername = function(username) {
     // return userSql._findByUsernameStatement.getAsync([username]);
+    throw "Not implemented!";
+};
+
+userSql.insertRow = function(username, passwordHash) {
+    // return userSql._insertStatement.runAsync([username, passwordHash])
+    //     .then(function() { return this.lastID });
     throw "Not implemented!";
 };
 

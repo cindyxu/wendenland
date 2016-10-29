@@ -17,8 +17,7 @@ describe('characterController', function() {
         userSql = require('../../../src/server/sql/user');
         characterSql = require('../../../src/server/sql/character');
 
-        characterController = require('../../../src/server/controllers/character')(
-            userSql, characterSql);
+        characterController = require('../../../src/server/controllers/character')(characterSql);
     });
 
     describe("#create", function() {

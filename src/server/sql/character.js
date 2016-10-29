@@ -6,26 +6,41 @@ var schemas = require("../db/schemas");
 var characterSchema = schemas.characters;
 
 var characterSql = {
-    _createStatement : undefined
+    _insertStatement : undefined
 };
 
 characterSql.setup = function(db) {
     // var promise = BPromise.resolve()
-    //     // create
+    //     // insert
     //     .then(DbUtil.prepare(characterSchema.insert(
-    //         characterSchema.name.value(""),
-    //         characterSchema.user_id.value("")), db))
+    //         characterSchema.user_id.value(""),
+    //         characterSchema.inhabitant_id.value("")), db))
     //     .then(function(st) {
-    //         characterSql._createStatement = st;
+    //         characterSql._insertStatement = st;
     //     });
-
     // return promise;
     throw "Not implemented!";
 };
 
-characterSql.create = function(name, userId) {
-    // return characterSql._createStatement.runAsync([name, userId])
-    //     .then(function() { return this.lastID });
+characterSql.create = function(name, userId, db) {
+    // var characterId;
+    // // atomic operation
+    // return db.beginTransactionAsync()
+    //     // insert a new inhabitant of the "traveller" species
+    //     .then(function() { return inhabitantSql.insertOfSpecies(name, "traveller" /* speciesName */); })
+    //     // insert a character with the new inhabitant under given user
+    //     .then(function(inhabitantId) { return characterSql.insertRow(userId, inhabitantId); })
+    //     .then(function(resId) {
+    //         characterId = resId;
+    //         return db.commitAsync();
+    //     })
+    //     .then(function() { return characterId; });
+    throw "Not implemented!";
+};
+
+characterSql.insertRow = function(userId, inhabitantId) {
+    // return characterSql._insertStatement.runAsync([userId, inhabitantId])
+    //     .then(function() { return this.lastID; });
     throw "Not implemented!";
 };
 
