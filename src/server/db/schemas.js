@@ -12,5 +12,19 @@ module.exports = {
             { name: 'username', dataType: 'int', primaryKey: true, autoIncrement: true },
             { name: 'password_hash', dataType: 'text', notNull: true, unique: true }
         ]
+    }),
+
+    // A public identity that a user can take on in-game.
+    // Users can have multiple characters that they can switch between.
+    // Each character maintains a separate appearance, world location, battle stats, etc.
+    characters: sql.define({
+        name: 'characters',
+        columns: [
+            { name: 'id', dataType: 'int', primaryKey: true, autoIncrement: true },
+            { name: 'user_id', dataType: 'int', notNull: true },
+            { name: 'name', dataType: 'text', notNull: true }
+        ], foreignKeys: [
+            { columns: ['user_id'], table: 'users', refColumns: ['id'] }
+        ]
     })
 };
