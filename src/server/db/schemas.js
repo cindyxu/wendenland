@@ -60,5 +60,37 @@ module.exports = {
             { columns: ['inhabitant_id'], table: 'users', refColumns: ['id'] },
             { columns: ['user_id'], table: 'users', refColumns: ['id'] }
         ]
+    }),
+
+    /**
+     * A collection of ordered pages + possible actions to take.
+     * Conceptually looks something like this:
+     * 
+     * pages: "You push the door. It creaks open." => "It's dark inside."
+     * actions: "look around" | "go north"
+     *
+     * Taking an action will generate another story.
+     */
+    story: sql.define({
+        name: 'story',
+        columns: [
+            { name: 'id', dataType: 'int', primaryKey: true, autoIncrement: true },
+            { name: 'parent_id', dataType: 'int' }
+        ], foreignKeys: [
+            { table: 'story', columns: ['parent_id'], refColumns: ['id'] }
+        ]
+    }),
+
+    // One page of a story.
+    pages: sql.define({
+        name: 'pages',
+        columns: [
+            { name: 'id', dataType: 'int', primaryKey: true, autoIncrement: true },
+            { name: 'story_id', dataType: 'int', notNull: true },
+            { name: 'index', dataType: 'int', notNull: true },
+            { name: 'text', dataType: 'text', notNull: true }
+        ], foreignKeys: [
+            { table: 'story', columns: ['story_id'], refColumns: ['id'] }
+        ]
     })
 };
