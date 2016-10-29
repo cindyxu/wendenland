@@ -5,26 +5,32 @@ var DbUtil = require("../db/util");
 var schemas = require("../db/schemas");
 var speciesSchema = schemas.species;
 
-var speciesSql = {
-    _findByNameStatement : undefined
-};
+var speciesSql = function(db) {
 
-speciesSql.setup = function(db) {
-    // var promise = BPromise.resolve()
-    //     // find by name
-    //     .then(DbUtil.prepare(speciesSchema.select()
-    //         .where(speciesSchema.name.equals("")), db))
-    //     .then(function(st) {
-    //         speciesSql._findByNameStatement = st;
-    //     });
+    var _speciesSql = {
+        _findByNameStatement : undefined
+    };
 
-    // return promise;
-    throw "Not implemented!";
-};
+    _speciesSql.setup = function(db) {
+        // var promise = BPromise.resolve()
+        //     // find by name
+        //     .then(DbUtil.prepare(speciesSchema.select()
+        //         .where(speciesSchema.name.equals("")), db))
+        //     .then(function(st) {
+        //         _speciesSql._findByNameStatement = st;
+        //     });
 
-speciesSql.findByName = function(name) {
-    // return speciesSql._findByNameStatement.getAsync([name]);
-    throw "Not implemented!";
-};
+        // return promise;
+        throw "Not implemented!";
+    };
+
+    _speciesSql.findByName = function(name) {
+        // return _speciesSql._findByNameStatement.getAsync([name]);
+        throw "Not implemented!";
+    };
+
+    return _speciesSql;
+
+}
 
 module.exports = speciesSql;
