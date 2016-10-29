@@ -27,8 +27,7 @@ characterSql.create = function(name, userId, db) {
     // // atomic operation
     // return db.beginTransactionAsync()
     //     // insert a new inhabitant of the "traveller" species
-    //     .then(function() { return speciesSql.findByName("traveller"); })
-    //     .then(function(species) { return inhabitantSql.insertRow(name, species.id); })
+    //     .then(function() { return inhabitantSql.insertOfSpecies(name, "traveller" /* speciesName */); })
     //     // insert a character with the new inhabitant under given user
     //     .then(function(inhabitantId) { return characterSql.insertRow(userId, inhabitantId); })
     //     .then(function(resId) {
