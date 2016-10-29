@@ -14,17 +14,36 @@ module.exports = {
         ]
     }),
 
-    // A public identity that a user can take on in-game.
+    // A public identity that a user can take on in-game. Basically a users-inhabitants table.
     // Users can have multiple characters that they can switch between.
-    // Each character maintains a separate appearance, world location, battle stats, etc.
     characters: sql.define({
         name: 'characters',
         columns: [
             { name: 'id', dataType: 'int', primaryKey: true, autoIncrement: true },
-            { name: 'user_id', dataType: 'int', notNull: true },
-            { name: 'name', dataType: 'text', notNull: true }
+            { name: 'user_id', dataType: 'int', notNull: true }
         ], foreignKeys: [
+            { columns: ['inhabitant_id'], table: 'users', refColumns: ['id'] },
             { columns: ['user_id'], table: 'users', refColumns: ['id'] }
+        ]
+    }),
+
+    // Any living being that inhabits the game world - character, npc, monster, etc.
+    inhabitants: sql.define({
+        name: 'inhabitants',
+        columns: [
+            { name: 'id', dataType: 'int', primaryKey: true, autoIncrement: true },
+            { name: 'name', dataType: 'text', notNull: true },
+            { name: 'species_id', dataType: 'int', notNull: true },
+        ], foreignKeys: [
+            { columns: ['species_id'], table: 'species', refColumns: ['id'] }
+        ]
+    }),
+
+    species: sql.define({
+        name: 'species',
+        columns: [
+            { name: 'id', dataType: 'int', primaryKey: true, autoIncrement: true },
+            { name: 'name', dataType: 'text', notNull: true }
         ]
     })
 };
