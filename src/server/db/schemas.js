@@ -43,8 +43,8 @@ module.exports = {
         name: 'users',
         columns: [
             { name: 'id', dataType: 'int', primaryKey: true, autoIncrement: true },
-            { name: 'username', dataType: 'int', primaryKey: true, autoIncrement: true },
-            { name: 'password_hash', dataType: 'text', notNull: true, unique: true }
+            { name: 'username', dataType: 'text', notNull: true, unique: true },
+            { name: 'password_hash', dataType: 'text' }
         ]
     }),
 
