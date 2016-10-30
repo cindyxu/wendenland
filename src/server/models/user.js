@@ -5,9 +5,9 @@ var BPromise = require('bluebird');
 
 var Errors = require('../errors');
 
-var userModel = function(userSql, bcrypt) {
+var userModel = function(userSql, bcrypt, db) {
 
-    var userModel = function(id, username, passwordHash) {
+    var _userModel = function(id, username, passwordHash) {
         this.id = id;
         this.username = username;
         this.passwordHash = passwordHash;
@@ -15,7 +15,7 @@ var userModel = function(userSql, bcrypt) {
 
     /* static methods */
 
-    userModel.create = function(username, password) {
+    _userModel.create = function(username, password) {
         if (!username) return BPromise.reject(Errors.USERNAME_NOT_GIVEN);
         if (!password) return BPromise.reject(Errors.PASSWORD_NOT_GIVEN);
 
@@ -26,28 +26,28 @@ var userModel = function(userSql, bcrypt) {
             })
             .then(function(resHash) {
                 hash = resHash;
-                return userSql.create(username, hash);
+                return userSql.insertRow(username, hash, db);
             })
-            .then(function(id) { return new userModel(id, username, hash) });
+            .then(function(id) { return new _userModel(id, username, hash) });
     };
 
-    userModel.findByUsername = function(username) {
-        return userSql.findByUsername(username)
+    _userModel.findByUsername = function(username) {
+        return userSql.findByUsername(username, db)
             .then(function(res) {
-                return new userModel(res.id, res.username, res.passwordHash);
+                return new _userModel(res.id, res.username, res.passwordHash);
             });
     };
 
     /* instance methods */
 
-    userModel.prototype.matchCredentials = function(username, password) {
+    _userModel.prototype.matchCredentials = function(username, password) {
         return bcrypt.compareAsync(password, this.passwordHash)
             .catch(function(e) {
                 throw Errors.WRONG_PASSWORD;
             });
     };
 
-    return userModel;
+    return _userModel;
 
 };
 

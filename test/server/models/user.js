@@ -6,18 +6,16 @@ var chai = require('chai'),
 
 var Errors = require('../../../src/server/errors');
 
+var db = BPromise.promisifyAll(require('../stubdb'));
+
 describe('userModel', function() {
 
-    var userSql;
-    var bcrypt;
-    var userModel;
-    var sandbox;
+    var userSql = require('../../../src/server/sql/user');
+    var bcrypt = BPromise.promisifyAll(require("bcrypt-nodejs"));
+    var userModel = require('../../../src/server/models/user')(
+        userSql, bcrypt, db);
 
-    before(function() {
-        userSql = require('../../../src/server/sql/user')();
-        bcrypt = BPromise.promisifyAll(require("bcrypt-nodejs"));
-        userModel = require('../../../src/server/models/user')(userSql, bcrypt);
-    });
+    var sandbox;
 
     beforeEach(function () {
         sandbox = sinon.sandbox.create();
@@ -54,12 +52,14 @@ describe('userModel', function() {
 
             // pretend TEST_PASSWORD encrypts to TEST_HASH
             sandbox.stub(bcrypt, 'hashAsync', function(password, salt) {
-                return Promise.resolve(password === TEST_PASSWORD ? TEST_HASH : undefined);
+                return Promise.resolve(
+                    password === TEST_PASSWORD ? TEST_HASH : undefined);
             });
             // pretend that creating user with TEST_USERNAME and TEST_HASH
             // results in new user with id TEST_ID
-            sandbox.stub(userSql, 'create', function(username, hash) {
-                return Promise.resolve(username === TEST_USERNAME && hash === TEST_HASH ?
+            sandbox.stub(userSql, 'insertRow', function(username, hash) {
+                return Promise.resolve(
+                    username === TEST_USERNAME && hash === TEST_HASH ?
                     TEST_ID : undefined);
             });
 
@@ -82,21 +82,25 @@ describe('userModel', function() {
         beforeEach(function(done) {
             // pretend TEST_PASSWORD encrypts to TEST_HASH
             sandbox.stub(bcrypt, 'hashAsync', function(password, salt) {
-                return Promise.resolve(password === TEST_PASSWORD ? TEST_HASH : undefined);
+                return Promise.resolve(password === TEST_PASSWORD ?
+                    TEST_HASH : undefined);
             });
             sandbox.stub(bcrypt, 'compareAsync', function(password, hash) {
-                if (password === TEST_PASSWORD && hash === TEST_HASH) return Promise.resolve();
+                if (password === TEST_PASSWORD && hash === TEST_HASH) {
+                    return Promise.resolve();
+                }
                 return Promise.reject();
             });
 
             // pretend that creating user with TEST_USERNAME and TEST_HASH
             // results in new user with id TEST_ID
-            sandbox.stub(userSql, 'create', function(username, hash) {
-                return Promise.resolve(username === TEST_USERNAME && hash === TEST_HASH ?
+            sandbox.stub(userSql, 'insertRow', function(username, hash, db) {
+                return Promise.resolve(
+                    username === TEST_USERNAME && hash === TEST_HASH ?
                     TEST_ID : undefined);
             });
 
-            userModel.create(TEST_USERNAME, TEST_PASSWORD)
+            userModel.create(TEST_USERNAME, TEST_PASSWORD, db)
                 .then(function(user) {
                     testUser = user;
                     done();
