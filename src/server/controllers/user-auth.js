@@ -16,7 +16,9 @@ var userController = function(userModel) {
     userController.login = function(username, password) {
         return userModel.findByUsername(username)
             .then(function(user) {
-                if (user) return user.matchCredentials(password, user.password_hash);
+                if (user) {
+                    return user.matchCredentials(password, user.password_hash);
+                }
                 else return BPromise.reject(Errors.USER_DOES_NOT_EXIST);
             });
     };
