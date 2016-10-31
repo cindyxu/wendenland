@@ -1,7 +1,3 @@
-var sinon = require('sinon');
-var BPromise = require('bluebird');
-
-var DbUtil = require("../db/util");
 var schemas = require("../db/schemas");
 var characterSchema = schemas.characters;
 

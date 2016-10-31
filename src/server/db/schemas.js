@@ -71,11 +71,14 @@ module.exports = {
      *
      * Taking an action will generate another story.
      */
-    story: sql.define({
-        name: 'story',
+    stories: sql.define({
+        name: 'stories',
         columns: [
             { name: 'id', dataType: 'int', primaryKey: true, autoIncrement: true },
-            { name: 'parent_id', dataType: 'int' }
+            { name: 'parent_id', dataType: 'int' },
+            // refers to the type of action taken to get to this story.
+            // eg. "move", "talk", "skill", etc.
+            { name: 'action_type', dataType: 'text' }
         ], foreignKeys: [
             { table: 'story', columns: ['parent_id'], refColumns: ['id'] }
         ]
@@ -92,5 +95,16 @@ module.exports = {
         ], foreignKeys: [
             { table: 'story', columns: ['story_id'], refColumns: ['id'] }
         ]
-    })
+    }),
+
+    move_actions: sql.define({
+        name: 'move_actions',
+        columns: [
+            { name: 'id', dataType: 'int', primaryKey: true, autoIncrement: true },
+            { name: 'story_id', dataType: 'int', notNull: true },
+            { name: 'dir', dataType: 'text', notNull: true }
+        ], foreignKeys: [
+            { table: 'stories', columns: ['story_id'], refColumns: ['id'] }
+        ]
+    }),
 };

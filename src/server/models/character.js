@@ -1,17 +1,33 @@
-var PASSWORD_SALT_ROUNDS = 2;
-
 var BPromise = require('bluebird');
-// var bcrypt = BPromise.promisifyAll(require("bcrypt-nodejs"));
 
 var Errors = require('../errors');
 
 var characterModel = function(inhabitantModel, characterSql, db) {
 
-    var _characterModel = function(id, name, userId, inhabitantId) {
+    var _characterModel = function(id, name, user, inhabitant) {
         this.id = id;
         this.name = name;
-        this.userId = userId;
-        this.inhabitantId = inhabitantId;
+
+        this.user = undefined;
+        if (user) {
+            if (isNaN(user)) {
+                this.user = user;
+                this.userId = user.id;
+            } else {
+                this.userId = user;
+            }
+        }
+
+        this.inhabitant = undefined;
+        if (inhabitant) {
+            if (isNaN(inhabitant)) {
+                this.inhabitant = inhabitant;
+                this.inhabitantId = inhabitant.id;
+            }
+            else {
+                this.inhabitantId = inhabitant;
+            }
+        }
     };
 
     /* static methods */
@@ -19,16 +35,13 @@ var characterModel = function(inhabitantModel, characterSql, db) {
     _characterModel.create = function(name, userId) {
         if (!name) return BPromise.reject(Errors.CHARACTER_NAME_NOT_GIVEN);
 
-        return _characterModel._createTransaction(name, userId, db)
-            .then(function(res) {
-                return new _characterModel(
-                    res.id, name, userId, res.inhabitantId); });
+        return _characterModel._createTransaction(name, userId, db);
     };
 
     _characterModel._createTransaction = function(name, userId) {
         var transaction;
         var characterId;
-        var inhabitantId;
+        var inhabitant;
         // atomic operation
         return db.beginTransactionAsync()
 
@@ -43,17 +56,18 @@ var characterModel = function(inhabitantModel, characterSql, db) {
             })
             // insert a character with the new inhabitant under given user
             .then(function(resInhabitant) {
-                inhabitantId = resInhabitant.id;
+                inhabitant = resInhabitant;
                 return characterSql.insertRow(
-                    userId, inhabitantId, transaction); })
+                    userId, inhabitant.id, transaction); })
 
             .then(function(resCharacter) {
                 characterId = resCharacter.id;
                 return transaction.commitAsync(); })
 
             .then(function() {
-                return new _characterModel(
-                    characterId, name, userId, inhabitantId);
+                var character = new _characterModel(
+                    characterId, name, userId, inhabitant);
+                return character;
             });
     };
 

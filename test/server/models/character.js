@@ -83,6 +83,7 @@ describe('characterModel', function() {
             return characterModel.create("testcharacter", TEST_USER_ID, db)
                 .then(function(character) {
                     assert.equal(character.id, TEST_CHARACTER_ID);
+                    assert.equal(character.inhabitant.id, TEST_INHABITANT_ID);
                 });
         });
     });
