@@ -31,21 +31,23 @@ describe('storyModel', function() {
 
         var TEST_FROM_STORY_ID = 123;
         var TEST_TO_STORY_ID = 234;
+        
+        var TEST_PARTY_ID = 345;
 
         var TEST_ACTION = { "type": "move", "dir": "north" };
-        var TEST_PAGE_1_ID = 345;
+        var TEST_PAGE_1_ID = 456;
         var TEST_PAGE_1_TEXT = "You push the door. It creaks open.";
-        var TEST_PAGE_2_ID = 456;
+        var TEST_PAGE_2_ID = 567;
         var TEST_PAGE_2_TEXT = "It's dark inside.";
 
-        var TEST_ACTION_ID = 567;
+        var TEST_ACTION_ID = 678;
 
         beforeEach(function() {
             sandbox.stub(pageSql, 'insertRows', function(storyId, pages, db) {
                 return;
             });
             sandbox.stub(storySql, 'insertRow',
-                function(parentId, actionType, db) {
+                function(parentId, partyId, actionType, db) {
                 return { id: TEST_TO_STORY_ID };
             });
             sandbox.stub(moveActionSql, 'insertRow',
@@ -55,12 +57,14 @@ describe('storyModel', function() {
         });
 
         it("should create a story with given pages and actions", function() {
-            var story = new storyModel(TEST_FROM_STORY_ID);
+            var story = new storyModel(
+                TEST_FROM_STORY_ID, undefined, TEST_PARTY_ID);
             return story.advance(TEST_ACTION,
                 [TEST_PAGE_1_TEXT, TEST_PAGE_2_TEXT], db)
-                .then(function(story) {
-                    assert.equal(story.id, TEST_TO_STORY_ID);
-                    assert.equal(story.parentId, TEST_FROM_STORY_ID);
+                .then(function(newStory) {
+                    assert.equal(newStory.id, TEST_TO_STORY_ID);
+                    assert.equal(newStory.parentId, TEST_FROM_STORY_ID);
+                    assert.equal(newStory.partyId, TEST_PARTY_ID);
                 });
         });
     });

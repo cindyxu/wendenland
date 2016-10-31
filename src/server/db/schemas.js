@@ -83,10 +83,12 @@ module.exports = {
         columns: [
             { name: 'id', dataType: 'int', primaryKey: true, autoIncrement: true },
             { name: 'parent_id', dataType: 'int' },
+            { name: 'party_id', dataType: 'int' },
             // refers to the type of action taken to get to this story.
             // eg. "move", "talk", "skill", etc.
             { name: 'action_type', dataType: 'text' }
         ], foreignKeys: [
+            { table: 'parties', columns: ['party_id'], refColumns: ['id'] },
             { table: 'story', columns: ['parent_id'], refColumns: ['id'] }
         ]
     }),

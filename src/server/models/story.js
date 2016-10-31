@@ -5,9 +5,10 @@ var Errors = require('../errors');
 
 var storyModel = function(pageSql, storySql, actionModel, db) {
 
-    var _storyModel = function(id, parentId, actionType, action) {
+    var _storyModel = function(id, parentId, partyId, actionType, action) {
         this.id = id;
         this.parentId = parentId;
+        this.partyId = partyId;
         this.actionType = actionType;
         this.action = action;
     };
@@ -17,7 +18,8 @@ var storyModel = function(pageSql, storySql, actionModel, db) {
     _storyModel.findById = function(id) {
         return storySql.findById(id, db)
             .then(function(res) {
-                return new _storyModel(res.id, res.parent_id, res.action_type);
+                return new _storyModel(
+                    res.id, res.parent_id, res.party_id, res.action_type);
             });
     };
 
@@ -29,12 +31,13 @@ var storyModel = function(pageSql, storySql, actionModel, db) {
         var action;
 
         var parentId = this.id;
+        var partyId = this.partyId;
         return db.beginTransactionAsync()
 
             // add the story to the database
             .then(function(resTransaction) {
                 transaction = BPromise.promisifyAll(resTransaction);
-                return storySql.insertRow(parentId, actionProps.type);
+                return storySql.insertRow(parentId, partyId, actionProps.type);
             })
 
             // add the pages to the database under new story
@@ -53,7 +56,7 @@ var storyModel = function(pageSql, storySql, actionModel, db) {
                 return transaction.commitAsync(); })
 
             .then(function() {
-                return new _storyModel(storyProps.id, parentId,
+                return new _storyModel(storyProps.id, parentId, partyId,
                     actionProps.type, action);
             })
     };
