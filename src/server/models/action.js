@@ -19,7 +19,7 @@ var actionModel = function(moveActionSql, db) {
     _actionModel.create = function(storyId, actionProps) {
         switch (actionProps.type) {
             case ActionTypes.MOVE:
-                return moveActionSql.insertRow(storyId, actionProps.dir);
+                return moveActionSql.insertRow(storyId, actionProps.dir, db);
             default:
                 return BPromise.reject("Not implemented!");
         }

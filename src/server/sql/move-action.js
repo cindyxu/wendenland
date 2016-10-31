@@ -3,7 +3,7 @@ var moveActionSchema = schemas.move_actions;
 
 var moveActionSql = {};
 
-moveActionSql.insertRow = function(storyId, dir) {
+moveActionSql.insertRow = function(storyId, dir, db) {
     // var query = moveActionSchema.insert(
     //         moveActionSchema.storyId.value(storyId),
     //         moveActionSchema.dir.value(dir)

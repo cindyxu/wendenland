@@ -24,6 +24,7 @@ module.exports = {
             { name: 'id', dataType: 'int', primaryKey: true, autoIncrement: true },
             { name: 'name', dataType: 'text', notNull: true },
             { name: 'species_id', dataType: 'int', notNull: true },
+            { name: 'party_id', dataType: 'int', notNull: true },
 
             // Every inhabitant starts with the base stats for their species,
             // but if they level up, these stats can go up as well.
@@ -35,6 +36,12 @@ module.exports = {
         ], foreignKeys: [
             { columns: ['species_id'], table: 'species', refColumns: ['id'] }
         ]
+    }),
+
+    parties: sql.define({
+       columns: [
+            { name: 'id', dataType: 'int', primaryKey: true, autoIncrement: true }
+        ] 
     }),
 
     // Authentication info for a player.

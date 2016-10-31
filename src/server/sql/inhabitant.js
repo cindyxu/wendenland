@@ -3,7 +3,8 @@ var inhabitantSchema = schemas.inhabitants;
 
 var inhabitantSql = {};
 
-inhabitantSql.insertRow = function(name, speciesId, str, dex, int, luk, db) {
+inhabitantSql.insertRow = function(
+    name, speciesId, partyId, str, dex, int, luk, db) {
     // var query = inhabitantSchema.insert(
     //         inhabitantSchema.name.value(name),
     //         inhabitantSchema.species_id.value(speciesId),
