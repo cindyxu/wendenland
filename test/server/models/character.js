@@ -1,3 +1,5 @@
+var _ = require('lodash');
+
 var BPromise = require('bluebird');
 var sinon = require('sinon');
 
@@ -6,25 +8,26 @@ var chai = require('chai'),
 
 var Errors = require('../../../src/server/errors');
 
+var schemas = require('../../../src/server/db/schemas');
 var db = BPromise.promisifyAll(require('../stubdb'));
 
 describe('characterModel', function() {
 
-    var speciesSql = require('../../../src/server/sql/species');
-    var inhabitantSql = require('../../../src/server/sql/inhabitant');
-    var partySql = require('../../../src/server/sql/party');
-    var characterSql = require('../../../src/server/sql/character');
+    var speciesSql = require('../../../src/server/sql/species')(schemas);
+    var inhabitantSql = require('../../../src/server/sql/inhabitant')(schemas);
+    var partySql = require('../../../src/server/sql/party')(schemas);
+    var characterSql = require('../../../src/server/sql/character')(schemas);
 
     var inhabitantModel = require('../../../src/server/models/inhabitant')(
         speciesSql, partySql, inhabitantSql, db);
     var characterModel = require('../../../src/server/models/character')(
         inhabitantModel, characterSql, db);
 
-    beforeEach(function () {
+    beforeEach(function() {
         sandbox = sinon.sandbox.create();
     });
 
-    afterEach(function () {
+    afterEach(function() {
         sandbox.restore();
     })
 

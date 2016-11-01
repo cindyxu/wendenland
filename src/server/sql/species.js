@@ -1,13 +1,16 @@
-var schemas = require("../db/schemas");
-var speciesSchema = schemas.species;
+module.exports = function(schemas) {
 
-var speciesSql = {};
+	var speciesSchema = schemas.species;
 
-speciesSql.findByName = function(name, db) {
-    // var query = speciesSchema.select()
-    //     .where(speciesSchema.name.equals(name)).toQuery();
-    // return db.getAsync(query.text, query.values);
-    throw "Not implemented!";
+	var speciesSql = {};
+
+	speciesSql.findByName = function(name, db) {
+	    // var query = speciesSchema.select()
+	    //     .where(speciesSchema.name.equals(name)).toQuery();
+	    // return db.getAsync(query.text, query.values);
+	    throw "Not implemented!";
+	};
+
+	return speciesSql;
+
 };
-
-module.exports = speciesSql;

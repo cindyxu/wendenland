@@ -1,16 +1,19 @@
-var schemas = require("../db/schemas");
-var characterSchema = schemas.characters;
+module.exports = function(schemas) {
 
-var characterSql = {};
+	var characterSchema = schemas.characters;
 
-characterSql.insertRow = function(userId, inhabitantId, db) {
-    // var query = characterSchema.insert(
-    //         characterSchema.user_id.value(userId),
-    //         characterSchema.inhabitant_id.value(inhabitantId)
-    //         ).toQuery();
-    // return db.runAsync(query.text, query.values)
-    //     .then(function() { return this.lastID; });
-    throw "Not implemented!";
+	var characterSql = {};
+
+	characterSql.insertRow = function(userId, inhabitantId, db) {
+	    // var query = characterSchema.insert(
+	    //         characterSchema.user_id.value(userId),
+	    //         characterSchema.inhabitant_id.value(inhabitantId)
+	    //         ).toQuery();
+	    // return db.runAsync(query.text, query.values)
+	    //     .then(function() { return this.lastID; });
+	    throw "Not implemented!";
+	};
+
+	return characterSql;
+
 };
-
-module.exports = characterSql;

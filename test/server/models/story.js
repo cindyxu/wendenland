@@ -6,14 +6,15 @@ var chai = require('chai'),
 
 var Errors = require('../../../src/server/errors');
 
+var schemas = require('../../../src/server/db/schemas');
 var db = BPromise.promisifyAll(require('../stubdb'));
 
 describe('storyModel', function() {
 
-    var pageSql = require('../../../src/server/sql/page');
-    var storySql = require('../../../src/server/sql/story');
-    var partySql = require('../../../src/server/sql/party');
-    var moveActionSql = require('../../../src/server/sql/move-action');
+    var pageSql = require('../../../src/server/sql/page')(schemas);
+    var storySql = require('../../../src/server/sql/story')(schemas);
+    var partySql = require('../../../src/server/sql/party')(schemas);
+    var moveActionSql = require('../../../src/server/sql/move-action')(schemas);
 
     var actionModel = require('../../../src/server/models/action')(
         moveActionSql, db);

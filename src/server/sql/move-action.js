@@ -1,16 +1,19 @@
-var schemas = require("../db/schemas");
-var moveActionSchema = schemas.move_actions;
+module.exports = function(schemas) {
 
-var moveActionSql = {};
+	var moveActionSchema = schemas.move_actions;
 
-moveActionSql.insertRow = function(storyId, dir, db) {
-    // var query = moveActionSchema.insert(
-    //         moveActionSchema.storyId.value(storyId),
-    //         moveActionSchema.dir.value(dir)
-    //     ).toQuery();
-    // return db.runAsync(query.text, query.values)
-    //     .then(function() { return this.lastID; });
-    throw "Not implemented!";
+	var moveActionSql = {};
+
+	moveActionSql.insertRow = function(storyId, dir, db) {
+	    // var query = moveActionSchema.insert(
+	    //         moveActionSchema.storyId.value(storyId),
+	    //         moveActionSchema.dir.value(dir)
+	    //     ).toQuery();
+	    // return db.runAsync(query.text, query.values)
+	    //     .then(function() { return this.lastID; });
+	    throw "Not implemented!";
+	};
+
+	return moveActionSql;
+
 };
-
-module.exports = moveActionSql;
