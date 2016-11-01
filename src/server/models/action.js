@@ -3,18 +3,7 @@ var BPromise = require('bluebird');
 
 var actionModel = function(moveActionSql, db) {
 
-    var _actionModel = function(id) {
-        this.id = id;
-        this.storyId = storyId;
-    };
-
-    var _moveModel = function(id, storyId, dir) {
-        _actionModel.call(this, id, storyId);
-        this.dir = dir;
-    };
-    _moveModel.prototype = Object.create(_actionModel.prototype);
-
-    /* static methods */
+    var _actionModel = {};
 
     _actionModel.create = function(storyId, actionProps) {
         switch (actionProps.type) {

@@ -3,61 +3,56 @@ var _ = require('lodash');
 
 var Errors = require('../errors');
 
-var storyModel = function(pageSql, storySql, actionModel, db) {
+var storyModel = function(pageSql, storySql, partyModel, actionModel, db) {
 
-    var _storyModel = function(id, parentId, partyId, actionType, action) {
-        this.id = id;
-        this.parentId = parentId;
-        this.partyId = partyId;
-        this.actionType = actionType;
-        this.action = action;
-    };
-
-    /* static methods */
+    var _storyModel = {};
 
     _storyModel.findById = function(id) {
-        return storySql.findById(id, db)
-            .then(function(res) {
-                return new _storyModel(
-                    res.id, res.parent_id, res.party_id, res.action_type);
-            });
+        return storySql.findById(id, db);
     };
 
-    /* instance methods */
-
-    _storyModel.prototype.advance = function(actionProps, pages, db) {
+    _storyModel.advance = function(parentId, actionProps, pages, db) {
         var transaction;
-        var storyProps;
+        var partyId;
+        var storyId;
         var action;
 
-        var parentId = this.id;
-        var partyId = this.partyId;
         return db.beginTransactionAsync()
 
             // add the story to the database
             .then(function(resTransaction) {
                 transaction = BPromise.promisifyAll(resTransaction);
+                return storySql.findById(parentId);
+            })
+
+            // get party id from story id
+            .then(function(resParentProps) {
+                partyId = resParentProps.party_id;
                 return storySql.insertRow(parentId, partyId, actionProps.type);
             })
 
             // add the pages to the database under new story
-            .then(function(resStoryProps) {
-                storyProps = resStoryProps;
-                return pageSql.insertRows(pages, storyProps.id);
+            .then(function(resStoryId) {
+                storyId = resStoryId;
+                return pageSql.insertRows(pages, storyId);
             })
 
             // add the action to the database under new story
             .then(function() {
-                return actionModel.create(storyProps.id, actionProps);
+                return actionModel.create(storyId, actionProps);
             })
+
+            // party is now on new story
+            .then(function() {
+                return partyModel.moveToStory(partyId, storyId);
+            })            
 
             .then(function(resAction) {
                 action = resAction;
                 return transaction.commitAsync(); })
 
             .then(function() {
-                return new _storyModel(storyProps.id, parentId, partyId,
-                    actionProps.type, action);
+                return storyId;
             })
     };
 

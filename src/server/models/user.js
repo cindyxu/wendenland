@@ -7,11 +7,7 @@ var Errors = require('../errors');
 
 var userModel = function(userSql, bcrypt, db) {
 
-    var _userModel = function(id, username, passwordHash) {
-        this.id = id;
-        this.username = username;
-        this.passwordHash = passwordHash;
-    };
+    var _userModel = {};
 
     /* static methods */
 
@@ -27,23 +23,22 @@ var userModel = function(userSql, bcrypt, db) {
             .then(function(resHash) {
                 hash = resHash;
                 return userSql.insertRow(username, hash, db);
-            })
-            .then(function(id) { return new _userModel(id, username, hash) });
-    };
-
-    _userModel.findByUsername = function(username) {
-        return userSql.findByUsername(username, db)
-            .then(function(res) {
-                return new _userModel(res.id, res.username, res.passwordHash);
             });
     };
 
-    /* instance methods */
+    _userModel.findByUsername = function(username) {
+        return userSql.findByUsername(username, db);
+    };
 
-    _userModel.prototype.matchCredentials = function(username, password) {
-        return bcrypt.compareAsync(password, this.passwordHash)
-            .catch(function(e) {
-                throw Errors.WRONG_PASSWORD;
+    _userModel.matchCredentials = function(username, password) {
+        return this.findByUsername(username)
+            .then(function(user) {
+                if (user) {
+                    return bcrypt.compareAsync(password, user.password_hash)
+                        .catch(function(e) {
+                            throw Errors.WRONG_PASSWORD;
+                        });
+                } else throw Errors.USER_DOES_NOT_EXIST;
             });
     };
 

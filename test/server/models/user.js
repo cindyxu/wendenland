@@ -64,8 +64,8 @@ describe('userModel', function() {
             });
 
             return userModel.create(TEST_USERNAME, TEST_PASSWORD)
-                .then(function(user) {
-                    assert.equal(user.id, TEST_ID);
+                .then(function(userId) {
+                    assert.equal(userId, TEST_ID);
                 });
         });
     });
@@ -76,8 +76,6 @@ describe('userModel', function() {
         var TEST_PASSWORD = "testPass123%";
         var TEST_HASH = "testhash";
         var TEST_ID = 123;
-
-        var testUser;
 
         beforeEach(function(done) {
             // pretend TEST_PASSWORD encrypts to TEST_HASH
@@ -92,33 +90,33 @@ describe('userModel', function() {
                 return Promise.reject();
             });
 
-            // pretend that creating user with TEST_USERNAME and TEST_HASH
-            // results in new user with id TEST_ID
-            sandbox.stub(userSql, 'insertRow', function(username, hash, db) {
+            // pretend we have a user in the database
+            var resUser = {
+                id: TEST_ID, 
+                username: TEST_USERNAME,
+                password_hash: TEST_HASH };
+            sandbox.stub(userSql, 'findByUsername', 
+                function(username, db) {
                 return Promise.resolve(
-                    username === TEST_USERNAME && hash === TEST_HASH ?
-                    TEST_ID : undefined);
+                    username === TEST_USERNAME ?
+                    resUser : undefined);
             });
 
-            userModel.create(TEST_USERNAME, TEST_PASSWORD, db)
-                .then(function(user) {
-                    testUser = user;
-                    done();
-                });
+            done();
         });
 
         it("should not return errors on valid credentials", function(done) {
-            testUser.matchCredentials("testuser", TEST_PASSWORD)
+            userModel.matchCredentials("testuser", TEST_PASSWORD)
                 .then(function() { done(); });
         });
 
         it("should return username error on invalid username", function() {
-            return testUser.matchCredentials("baduser", TEST_PASSWORD)
+            return userModel.matchCredentials("baduser", TEST_PASSWORD)
                 .catch(e => assert.equal(e, Errors.USER_DOES_NOT_EXIST));
         });
 
         it("should return password error on invalid password", function() {
-            return testUser.matchCredentials("testuser", "badpass")
+            return userModel.matchCredentials("testuser", "badpass")
                 .catch(e => assert.equal(e, Errors.WRONG_PASSWORD));
         });
     });

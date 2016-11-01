@@ -4,34 +4,8 @@ var Errors = require('../errors');
 
 var characterModel = function(inhabitantModel, characterSql, db) {
 
-    var _characterModel = function(id, name, user, inhabitant) {
-        this.id = id;
-        this.name = name;
+    var _characterModel = {};
 
-        this.user = undefined;
-        if (user) {
-            if (isNaN(user)) {
-                this.user = user;
-                this.userId = user.id;
-            } else {
-                this.userId = user;
-            }
-        }
-
-        this.inhabitant = undefined;
-        if (inhabitant) {
-            if (isNaN(inhabitant)) {
-                this.inhabitant = inhabitant;
-                this.inhabitantId = inhabitant.id;
-            }
-            else {
-                this.inhabitantId = inhabitant;
-            }
-        }
-    };
-
-    /* static methods */
-    
     _characterModel.create = function(name, userId) {
         if (!name) return BPromise.reject(Errors.CHARACTER_NAME_NOT_GIVEN);
 
@@ -41,7 +15,6 @@ var characterModel = function(inhabitantModel, characterSql, db) {
     _characterModel._createTransaction = function(name, userId) {
         var transaction;
         var characterId;
-        var inhabitant;
         // atomic operation
         return db.beginTransactionAsync()
 
@@ -55,19 +28,16 @@ var characterModel = function(inhabitantModel, characterSql, db) {
                     name, "traveller" /* speciesName */, transaction);
             })
             // insert a character with the new inhabitant under given user
-            .then(function(resInhabitant) {
-                inhabitant = resInhabitant;
+            .then(function(resInhabitantId) {
                 return characterSql.insertRow(
-                    userId, inhabitant.id, transaction); })
+                    userId, resInhabitantId, transaction); })
 
-            .then(function(resCharacter) {
-                characterId = resCharacter.id;
+            .then(function(resCharacterId) {
+                characterId = resCharacterId;
                 return transaction.commitAsync(); })
 
             .then(function() {
-                var character = new _characterModel(
-                    characterId, name, userId, inhabitant);
-                return character;
+                return characterId;
             });
     };
 

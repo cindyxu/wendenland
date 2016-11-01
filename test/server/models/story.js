@@ -12,12 +12,16 @@ describe('storyModel', function() {
 
     var pageSql = require('../../../src/server/sql/page');
     var storySql = require('../../../src/server/sql/story');
+    var partySql = require('../../../src/server/sql/party');
     var moveActionSql = require('../../../src/server/sql/move-action');
 
     var actionModel = require('../../../src/server/models/action')(
         moveActionSql, db);
+    var partyModel = require('../../../src/server/models/party')(
+        storySql, partySql, db);
     var storyModel = require('../../../src/server/models/story')(
-        pageSql, storySql, actionModel, db);
+        pageSql, storySql, partyModel, actionModel, db);
+
 
     beforeEach(function () {
         sandbox = sinon.sandbox.create();
@@ -46,25 +50,27 @@ describe('storyModel', function() {
             sandbox.stub(pageSql, 'insertRows', function(storyId, pages, db) {
                 return;
             });
+            sandbox.stub(partySql, 'setStoryId',
+                function(partyId, storyId, db) {
+                return;
+            });
+            sandbox.stub(storySql, 'findById',
+                function(storyId, db) {
+                    return { id: storyId, party_id: TEST_PARTY_ID };
+                });
             sandbox.stub(storySql, 'insertRow',
                 function(parentId, partyId, actionType, db) {
-                return { id: TEST_TO_STORY_ID };
-            });
+                    return TEST_TO_STORY_ID;
+                });
             sandbox.stub(moveActionSql, 'insertRow',
-                function(storyId, dir, db) {
-                return { id: TEST_ACTION_ID };
-            });
+                function(storyId, dir, db) { return TEST_ACTION_ID; });
         });
 
         it("should create a story with given pages and actions", function() {
-            var story = new storyModel(
-                TEST_FROM_STORY_ID, undefined, TEST_PARTY_ID);
-            return story.advance(TEST_ACTION,
+            return storyModel.advance(TEST_FROM_STORY_ID, TEST_ACTION,
                 [TEST_PAGE_1_TEXT, TEST_PAGE_2_TEXT], db)
-                .then(function(newStory) {
-                    assert.equal(newStory.id, TEST_TO_STORY_ID);
-                    assert.equal(newStory.parentId, TEST_FROM_STORY_ID);
-                    assert.equal(newStory.partyId, TEST_PARTY_ID);
+                .then(function(newStoryId) {
+                    assert.equal(newStoryId, TEST_TO_STORY_ID);
                 });
         });
     });

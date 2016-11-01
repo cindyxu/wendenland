@@ -10,4 +10,14 @@ partySql.insertRow = function(db) {
     throw "Not implemented!";
 };
 
+partySql.setStoryId = function(partyId, storyId, db) {
+	// var updateObj = {};
+	// updateObj[partySchema.story_id.name] = storyId;
+	// var query = partySchema.update(updateObj)
+	// 	.where(partySchema.party_id.equals(partyId)).toQuery();
+    // return db.runAsync(query.text, query.values)
+    //     .then(function() { return this.lastID; });
+    throw "Not implemented!";
+};
+
 module.exports = partySql;

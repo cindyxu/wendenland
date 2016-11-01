@@ -48,14 +48,14 @@ describe('characterModel', function() {
             });
 
             sandbox.stub(partySql, 'insertRow', function() {
-                return Promise.resolve({ id: TEST_PARTY_ID });
+                return Promise.resolve(TEST_PARTY_ID);
             });
 
             sandbox.stub(inhabitantSql, 'insertRow',
                 function(name, speciesId, str, dex, int, luk, db) {
 
                 if (speciesId === TEST_SPECIES_ID) {
-                    return Promise.resolve({ id: TEST_INHABITANT_ID }); }
+                    return Promise.resolve(TEST_INHABITANT_ID); }
                 else return Promise.reject();
             });
 
@@ -64,7 +64,7 @@ describe('characterModel', function() {
 
                 if (userId === TEST_USER_ID &&
                     inhabitantId === TEST_INHABITANT_ID) {
-                    return Promise.resolve({ id: TEST_CHARACTER_ID }); }
+                    return Promise.resolve(TEST_CHARACTER_ID); }
                 return Promise.reject();
             });
         });
@@ -87,9 +87,8 @@ describe('characterModel', function() {
         it("should create a character with given name under given user",
             function() {
             return characterModel.create("testcharacter", TEST_USER_ID, db)
-                .then(function(character) {
-                    assert.equal(character.id, TEST_CHARACTER_ID);
-                    assert.equal(character.inhabitant.id, TEST_INHABITANT_ID);
+                .then(function(characterId) {
+                    assert.equal(characterId, TEST_CHARACTER_ID);
                 });
         });
     });
