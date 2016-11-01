@@ -1,11 +1,11 @@
 var ActionTypes = require('../action-types');
 var BPromise = require('bluebird');
 
-var actionModel = function(moveActionSql, db) {
+module.exports = function(moveActionSql, db) {
 
-    var _actionModel = {};
+    var actionHelper = {};
 
-    _actionModel.create = function(storyId, actionProps) {
+    actionHelper.create = function(storyId, actionProps) {
         switch (actionProps.type) {
             case ActionTypes.MOVE:
                 return moveActionSql.insertRow(storyId, actionProps.dir, db);
@@ -14,8 +14,6 @@ var actionModel = function(moveActionSql, db) {
         }
     };
 
-    return _actionModel;
+    return actionHelper;
 
 };
-
-module.exports = actionModel;

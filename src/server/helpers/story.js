@@ -3,15 +3,15 @@ var _ = require('lodash');
 
 var Errors = require('../errors');
 
-var storyModel = function(pageSql, storySql, partyModel, actionModel, db) {
+module.exports = function(pageSql, storySql, partyHelper, actionHelper, db) {
 
-    var _storyModel = {};
+    var storyHelper = {};
 
-    _storyModel.findById = function(id) {
+    storyHelper.findById = function(id) {
         return storySql.findById(id, db);
     };
 
-    _storyModel.advance = function(parentId, actionProps, pages, db) {
+    storyHelper.advance = function(parentId, actionProps, pages, db) {
         var transaction;
         var partyId;
         var storyId;
@@ -39,12 +39,12 @@ var storyModel = function(pageSql, storySql, partyModel, actionModel, db) {
 
             // add the action to the database under new story
             .then(function() {
-                return actionModel.create(storyId, actionProps);
+                return actionHelper.create(storyId, actionProps);
             })
 
             // party is now on new story
             .then(function() {
-                return partyModel.moveToStory(partyId, storyId);
+                return partyHelper.moveToStory(partyId, storyId);
             })            
 
             .then(function(resAction) {
@@ -56,8 +56,6 @@ var storyModel = function(pageSql, storySql, partyModel, actionModel, db) {
             })
     };
 
-    return _storyModel;
+    return storyHelper;
 
 };
-
-module.exports = storyModel;

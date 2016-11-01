@@ -9,11 +9,11 @@ var Errors = require('../../../src/server/errors');
 var db = BPromise.promisifyAll(require('../stubdb'));
 var schemas = require('../../../src/server/db/schemas');
 
-describe('userModel', function() {
+describe('userHelper', function() {
 
     var userSql = require('../../../src/server/sql/user')(schemas);
     var bcrypt = BPromise.promisifyAll(require("bcrypt-nodejs"));
-    var userModel = require('../../../src/server/models/user')(
+    var userHelper = require('../../../src/server/helpers/user')(
         userSql, bcrypt, db);
 
     var sandbox;
@@ -34,7 +34,7 @@ describe('userModel', function() {
         var TEST_ID = 123;
 
         it("should return errors on missing username", function() {
-            return userModel.create(undefined, TEST_PASSWORD)
+            return userHelper.create(undefined, TEST_PASSWORD)
                 .then(assert.fail)
                 .catch(function(e) {
                     assert.equal(e, Errors.USERNAME_NOT_GIVEN);
@@ -42,7 +42,7 @@ describe('userModel', function() {
         });
 
         it("should return errors on invalid password", function() {
-            return userModel.create(TEST_USERNAME, undefined)
+            return userHelper.create(TEST_USERNAME, undefined)
                 .then(assert.fail)
                 .catch(function(e) {
                     assert.equal(e, Errors.PASSWORD_NOT_GIVEN);
@@ -64,7 +64,7 @@ describe('userModel', function() {
                     TEST_ID : undefined);
             });
 
-            return userModel.create(TEST_USERNAME, TEST_PASSWORD)
+            return userHelper.create(TEST_USERNAME, TEST_PASSWORD)
                 .then(function(userId) {
                     assert.equal(userId, TEST_ID);
                 });
@@ -107,17 +107,17 @@ describe('userModel', function() {
         });
 
         it("should not return errors on valid credentials", function(done) {
-            userModel.matchCredentials("testuser", TEST_PASSWORD)
+            userHelper.matchCredentials("testuser", TEST_PASSWORD)
                 .then(function() { done(); });
         });
 
         it("should return username error on invalid username", function() {
-            return userModel.matchCredentials("baduser", TEST_PASSWORD)
+            return userHelper.matchCredentials("baduser", TEST_PASSWORD)
                 .catch(e => assert.equal(e, Errors.USER_DOES_NOT_EXIST));
         });
 
         it("should return password error on invalid password", function() {
-            return userModel.matchCredentials("testuser", "badpass")
+            return userHelper.matchCredentials("testuser", "badpass")
                 .catch(e => assert.equal(e, Errors.WRONG_PASSWORD));
         });
     });

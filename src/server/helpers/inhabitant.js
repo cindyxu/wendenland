@@ -1,10 +1,10 @@
 var Errors = require('../errors');
 
-var inhabitantModel = function(speciesSql, partySql, inhabitantSql, db) {
+module.exports = function(speciesSql, partySql, inhabitantSql, db) {
 
-    var _inhabitantModel = {};
+    var inhabitantHelper = {};
 
-    _inhabitantModel.createOfSpecies = function(name, speciesName) {
+    inhabitantHelper.createOfSpecies = function(name, speciesName) {
         var species;
         var partyId;
 
@@ -26,8 +26,6 @@ var inhabitantModel = function(speciesSql, partySql, inhabitantSql, db) {
             });
     };
 
-    return _inhabitantModel;
+    return inhabitantHelper;
 
 };
-
-module.exports = inhabitantModel;

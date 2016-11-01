@@ -5,16 +5,16 @@ var BPromise = require('bluebird');
 
 var Errors = require('../errors');
 
-var userController = function(userModel) {
+var userController = function(userHelper) {
 
     var userController = {};
 
     userController.signup = function(username, password) {
-        return userModel.create(username, password);
+        return userHelper.createUser(username, password);
     };
 
     userController.login = function(username, password) {
-        return userModel.findByUsername(username)
+        return userHelper.findByUsername(username)
             .then(function(user) {
                 if (user) {
                     return user.matchCredentials(password, user.password_hash);

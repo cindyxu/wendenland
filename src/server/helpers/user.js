@@ -5,13 +5,13 @@ var BPromise = require('bluebird');
 
 var Errors = require('../errors');
 
-var userModel = function(userSql, bcrypt, db) {
+module.exports = function(userSql, bcrypt, db) {
 
-    var _userModel = {};
+    var userHelper = {};
 
     /* static methods */
 
-    _userModel.create = function(username, password) {
+    userHelper.create = function(username, password) {
         if (!username) return BPromise.reject(Errors.USERNAME_NOT_GIVEN);
         if (!password) return BPromise.reject(Errors.PASSWORD_NOT_GIVEN);
 
@@ -26,11 +26,11 @@ var userModel = function(userSql, bcrypt, db) {
             });
     };
 
-    _userModel.findByUsername = function(username) {
+    userHelper.findByUsername = function(username) {
         return userSql.findByUsername(username, db);
     };
 
-    _userModel.matchCredentials = function(username, password) {
+    userHelper.matchCredentials = function(username, password) {
         return this.findByUsername(username)
             .then(function(user) {
                 if (user) {
@@ -42,8 +42,6 @@ var userModel = function(userSql, bcrypt, db) {
             });
     };
 
-    return _userModel;
+    return userHelper;
 
 };
-
-module.exports = userModel;
