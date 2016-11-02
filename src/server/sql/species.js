@@ -4,7 +4,7 @@ module.exports = function(tables) {
 
 	var speciesSql = {};
 
-	speciesSql.findByName = function(name, db) {
+	speciesSql.findSpeciesByName = function(name, db) {
 	    // var query = speciesTable.select()
 	    //     .where(speciesTable.name.equals(name)).toQuery();
 	    // return db.getAsync(query.text, query.values);

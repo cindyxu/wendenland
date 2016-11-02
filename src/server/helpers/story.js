@@ -8,10 +8,10 @@ module.exports = function(pageSql, storySql, partyHelper, actionHelper, db) {
     var storyHelper = {};
 
     storyHelper.findById = function(id) {
-        return storySql.findById(id, db);
+        return storySql.findStoryById(id, db);
     };
 
-    storyHelper.advanceTransaction = function(
+    storyHelper.advanceStory = function(
         parentId, actionProps, pages, db) {
 
         var transaction;
@@ -24,29 +24,30 @@ module.exports = function(pageSql, storySql, partyHelper, actionHelper, db) {
             // add the story to the database
             .then(function(resTransaction) {
                 transaction = BPromise.promisifyAll(resTransaction);
-                return storySql.findById(parentId);
+                return storySql.findStoryById(parentId);
             })
 
             // get party id from story id
             .then(function(resParentProps) {
                 partyId = resParentProps.party_id;
-                return storySql.insertRow(parentId, partyId, actionProps.type);
+                return storySql.insertStory(
+                    parentId, partyId, actionProps.type);
             })
 
             // add the pages to the database under new story
             .then(function(resStoryId) {
                 storyId = resStoryId;
-                return pageSql.insertRows(pages, storyId);
+                return pageSql.insertPages(pages, storyId);
             })
 
             // add the action to the database under new story
             .then(function() {
-                return actionHelper.create(storyId, actionProps);
+                return actionHelper.createAction(storyId, actionProps);
             })
 
             // party is now on new story
             .then(function() {
-                return partyHelper.moveToStory(partyId, storyId);
+                return partyHelper.movePartyToStory(partyId, storyId);
             })            
 
             .then(function(resAction) {

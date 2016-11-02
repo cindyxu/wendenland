@@ -31,7 +31,7 @@ describe('characterHelper', function() {
         sandbox.restore();
     })
 
-    describe("#create", function() {
+    describe("#createCharacter", function() {
 
         var TEST_USER_ID = 123;
         var TEST_CHARACTER_NAME = "testcharacter";
@@ -43,18 +43,18 @@ describe('characterHelper', function() {
 
         beforeEach(function() {
             // pretend we have a "traveller" species
-            sandbox.stub(speciesSql, 'findByName', function(name, db) {
+            sandbox.stub(speciesSql, 'findSpeciesByName', function(name, db) {
 
                 if (name === "traveller") {
                     return Promise.resolve({ id: TEST_SPECIES_ID }); }
                 else return Promise.reject();
             });
 
-            sandbox.stub(partySql, 'insertRow', function() {
+            sandbox.stub(partySql, 'insertParty', function() {
                 return Promise.resolve(TEST_PARTY_ID);
             });
 
-            sandbox.stub(inhabitantSql, 'insertRow',
+            sandbox.stub(inhabitantSql, 'insertInhabitant',
                 function(name, speciesId, str, dex, int, luk, db) {
 
                 if (speciesId === TEST_SPECIES_ID) {
@@ -62,7 +62,7 @@ describe('characterHelper', function() {
                 else return Promise.reject();
             });
 
-            sandbox.stub(characterSql, 'insertRow',
+            sandbox.stub(characterSql, 'insertCharacter',
                 function(userId, inhabitantId, db) {
 
                 if (userId === TEST_USER_ID &&

@@ -21,15 +21,15 @@ module.exports = function(speciesSql, characterSql, inhabitantHelper, db) {
             // insert a new inhabitant of the "traveller" species
             .then(function(resTransaction) {
                 transaction = BPromise.promisifyAll(resTransaction);
-                return speciesSql.findByName("traveller", db);
+                return speciesSql.findSpeciesByName("traveller", db);
             })
             .then(function(resSpecies) {
-                return inhabitantHelper.createOfSpecies(
+                return inhabitantHelper.createInhabitantOfSpecies(
                     name, resSpecies, transaction);
             })
             // insert a character with the new inhabitant under given user
             .then(function(resInhabitantId) {
-                return characterSql.insertRow(
+                return characterSql.insertCharacter(
                     userId, resInhabitantId, transaction); })
 
             .then(function(resCharacterId) {

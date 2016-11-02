@@ -14,10 +14,10 @@ describe('storyHelper', function() {
     var pageSql = require('../../../src/server/sql/page')(tables);
     var storySql = require('../../../src/server/sql/story')(tables);
     var partySql = require('../../../src/server/sql/party')(tables);
-    var moveActionSql = require('../../../src/server/sql/move-action')(tables);
+    var actionSql = require('../../../src/server/sql/action')(tables);
 
     var actionHelper = require('../../../src/server/helpers/action')(
-        moveActionSql, db);
+        actionSql, db);
     var partyHelper = require('../../../src/server/helpers/party')(
         storySql, partySql, db);
     var storyHelper = require('../../../src/server/helpers/story')(
@@ -32,7 +32,7 @@ describe('storyHelper', function() {
         sandbox.restore();
     })
 
-    describe("#advance", function() {
+    describe("#advanceStory", function() {
 
         var TEST_FROM_STORY_ID = 123;
         var TEST_TO_STORY_ID = 234;
@@ -48,27 +48,27 @@ describe('storyHelper', function() {
         var TEST_ACTION_ID = 678;
 
         beforeEach(function() {
-            sandbox.stub(pageSql, 'insertRows', function(storyId, pages, db) {
+            sandbox.stub(pageSql, 'insertPages', function(storyId, pages, db) {
                 return;
             });
-            sandbox.stub(partySql, 'setStoryId',
+            sandbox.stub(partySql, 'setPartyStoryId',
                 function(partyId, storyId, db) {
                 return;
             });
-            sandbox.stub(storySql, 'findById',
+            sandbox.stub(storySql, 'findStoryById',
                 function(storyId, db) {
                     return { id: storyId, party_id: TEST_PARTY_ID };
                 });
-            sandbox.stub(storySql, 'insertRow',
+            sandbox.stub(storySql, 'insertStory',
                 function(parentId, partyId, actionType, db) {
                     return TEST_TO_STORY_ID;
                 });
-            sandbox.stub(moveActionSql, 'insertRow',
+            sandbox.stub(actionSql, 'insertMoveAction',
                 function(storyId, dir, db) { return TEST_ACTION_ID; });
         });
 
         it("should create a story with given pages and actions", function() {
-            return storyHelper.advanceTransaction(TEST_FROM_STORY_ID,
+            return storyHelper.advanceStory(TEST_FROM_STORY_ID,
                 TEST_ACTION, [TEST_PAGE_1_TEXT, TEST_PAGE_2_TEXT], db)
                 .then(function(newStoryId) {
                     assert.equal(newStoryId, TEST_TO_STORY_ID);

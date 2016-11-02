@@ -2,9 +2,9 @@ module.exports = function(tables) {
 
 	var moveActionTable = tables.move_actions;
 
-	var moveActionSql = {};
+	var actionSql = {};
 
-	moveActionSql.insertRow = function(storyId, dir, db) {
+	actionSql.insertMoveAction = function(storyId, dir, db) {
 	    // var query = moveActionTable.insert(
 	    //         moveActionTable.storyId.value(storyId),
 	    //         moveActionTable.dir.value(dir)
@@ -14,6 +14,6 @@ module.exports = function(tables) {
 	    throw "Not implemented!";
 	};
 
-	return moveActionSql;
+	return actionSql;
 
 };

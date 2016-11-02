@@ -5,7 +5,7 @@ module.exports = function(tables) {
 	var pageSql = {};
 
 	// this doesn't return anything since it is a batch insert
-	pageSql.insertRows = function(storyId, pages) {
+	pageSql.insertPages = function(storyId, pages) {
 		// var insertObj = [];
 		// for (var i = 0; i < pages.length; i++) {
 		// 	var pageObj = {};

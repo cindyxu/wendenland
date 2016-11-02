@@ -26,7 +26,7 @@ describe('userHelper', function() {
         sandbox.restore();
     })
 
-    describe("#create", function() {
+    describe("#createUser", function() {
 
         var TEST_USERNAME = "testuser";
         var TEST_PASSWORD = "testPass123!";
@@ -34,7 +34,7 @@ describe('userHelper', function() {
         var TEST_ID = 123;
 
         it("should return errors on missing username", function() {
-            return userHelper.create(undefined, TEST_PASSWORD)
+            return userHelper.createUser(undefined, TEST_PASSWORD)
                 .then(assert.fail)
                 .catch(function(e) {
                     assert.equal(e, Errors.USERNAME_NOT_GIVEN);
@@ -42,7 +42,7 @@ describe('userHelper', function() {
         });
 
         it("should return errors on invalid password", function() {
-            return userHelper.create(TEST_USERNAME, undefined)
+            return userHelper.createUser(TEST_USERNAME, undefined)
                 .then(assert.fail)
                 .catch(function(e) {
                     assert.equal(e, Errors.PASSWORD_NOT_GIVEN);
@@ -58,13 +58,13 @@ describe('userHelper', function() {
             });
             // pretend that creating user with TEST_USERNAME and TEST_HASH
             // results in new user with id TEST_ID
-            sandbox.stub(userSql, 'insertRow', function(username, hash) {
+            sandbox.stub(userSql, 'insertUser', function(username, hash) {
                 return Promise.resolve(
                     username === TEST_USERNAME && hash === TEST_HASH ?
                     TEST_ID : undefined);
             });
 
-            return userHelper.create(TEST_USERNAME, TEST_PASSWORD)
+            return userHelper.createUser(TEST_USERNAME, TEST_PASSWORD)
                 .then(function(userId) {
                     assert.equal(userId, TEST_ID);
                 });
@@ -96,7 +96,7 @@ describe('userHelper', function() {
                 id: TEST_ID, 
                 username: TEST_USERNAME,
                 password_hash: TEST_HASH };
-            sandbox.stub(userSql, 'findByUsername', 
+            sandbox.stub(userSql, 'findUserByUsername', 
                 function(username, db) {
                 return Promise.resolve(
                     username === TEST_USERNAME ?

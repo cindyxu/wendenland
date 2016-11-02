@@ -4,7 +4,7 @@ module.exports = function(tables) {
 
     var userSql = {};
 
-    userSql.insertRow = function(username, passwordHash, db) {
+    userSql.insertUser = function(username, passwordHash, db) {
         // var query = userTable.insert(
         //         userTable.username.value(username),
         //         userTable.password_hash.value(passwordHash)
@@ -14,7 +14,7 @@ module.exports = function(tables) {
         throw "Not implemented!";
     };
 
-    userSql.findByUsername = function(username, db) {
+    userSql.findUserByUsername = function(username, db) {
         // var query = userTable.select()
         //         .where(userTable.username.equals(username)).toQuery();
         // return db.getAsync(query.text, query.values);

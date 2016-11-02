@@ -4,7 +4,7 @@ module.exports = function(tables) {
 
 	var characterSql = {};
 
-	characterSql.insertRow = function(userId, inhabitantId, db) {
+	characterSql.insertCharacter = function(userId, inhabitantId, db) {
 	    // var query = characterTable.insert(
 	    //         characterTable.user_id.value(userId),
 	    //         characterTable.inhabitant_id.value(inhabitantId)

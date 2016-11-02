@@ -4,15 +4,16 @@ module.exports = function(partySql, inhabitantSql, db) {
 
     var inhabitantHelper = {};
 
-    inhabitantHelper.createOfSpecies = function(name, species) {
+    inhabitantHelper.createInhabitantOfSpecies = function(name, species) {
         var species;
         var partyId;
 
         // create new party for inhabitant
-        return partySql.insertRow()
+        return partySql.insertParty()
             .then(function(resPartyId) {
                 partyId = resPartyId;
-                return inhabitantSql.insertRow(name, species.id, partyId,
+                return inhabitantSql.insertInhabitant(
+                    name, species.id, partyId,
                     species.stat_str, species.stat_dex,
                     species.stat_int, species.stat_luk, db);
             });
