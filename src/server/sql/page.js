@@ -1,6 +1,6 @@
-module.exports = function(schemas) {
+module.exports = function(tables) {
 
-	var pageSchema = schemas.pages;
+	var pageTable = tables.pages;
 
 	var pageSql = {};
 
@@ -9,11 +9,11 @@ module.exports = function(schemas) {
 		// var insertObj = [];
 		// for (var i = 0; i < pages.length; i++) {
 		// 	var pageObj = {};
-		// 	pageObj[pageSchema.storyId.name] = storyId;
-		// 	pageObj[pageSchema.index.name] = i;
-		// 	pageObj[pageSchema.text.name] = pages[i];
+		// 	pageObj[pageTable.storyId.name] = storyId;
+		// 	pageObj[pageTable.index.name] = i;
+		// 	pageObj[pageTable.text.name] = pages[i];
 		// }
-	    // var query = pageSchema.insert(insertObj).toQuery();
+	    // var query = pageTable.insert(insertObj).toQuery();
 	    // return db.runAsync(query.text, query.values);
 	    throw "Not implemented!";
 	};

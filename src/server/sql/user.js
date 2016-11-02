@@ -1,13 +1,13 @@
-module.exports = function(schemas) {
+module.exports = function(tables) {
 
-    var userSchema = schemas.users;
+    var userTable = tables.users;
 
     var userSql = {};
 
     userSql.insertRow = function(username, passwordHash, db) {
-        // var query = userSchema.insert(
-        //         userSchema.username.value(username),
-        //         userSchema.password_hash.value(passwordHash)
+        // var query = userTable.insert(
+        //         userTable.username.value(username),
+        //         userTable.password_hash.value(passwordHash)
         //     ).toQuery();
         // return db.runAsync(query.text, query.values)
         //     .then(function() { return this.lastID; });
@@ -15,8 +15,8 @@ module.exports = function(schemas) {
     };
 
     userSql.findByUsername = function(username, db) {
-        // var query = userSchema.select()
-        //         .where(userSchema.username.equals(username)).toQuery();
+        // var query = userTable.select()
+        //         .where(userTable.username.equals(username)).toQuery();
         // return db.getAsync(query.text, query.values);
         throw "Not implemented!";
     };

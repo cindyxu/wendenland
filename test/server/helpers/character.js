@@ -8,20 +8,20 @@ var chai = require('chai'),
 
 var Errors = require('../../../src/server/errors');
 
-var schemas = require('../../../src/server/db/schemas');
+var tables = require('../../../src/server/db/tables');
 var db = BPromise.promisifyAll(require('../stubdb'));
 
 describe('characterHelper', function() {
 
-    var speciesSql = require('../../../src/server/sql/species')(schemas);
-    var inhabitantSql = require('../../../src/server/sql/inhabitant')(schemas);
-    var partySql = require('../../../src/server/sql/party')(schemas);
-    var characterSql = require('../../../src/server/sql/character')(schemas);
+    var speciesSql = require('../../../src/server/sql/species')(tables);
+    var inhabitantSql = require('../../../src/server/sql/inhabitant')(tables);
+    var partySql = require('../../../src/server/sql/party')(tables);
+    var characterSql = require('../../../src/server/sql/character')(tables);
 
     var inhabitantHelper = require('../../../src/server/helpers/inhabitant')(
-        speciesSql, partySql, inhabitantSql, db);
+        partySql, inhabitantSql, db);
     var characterHelper = require('../../../src/server/helpers/character')(
-        inhabitantHelper, characterSql, db);
+        speciesSql, characterSql, inhabitantHelper, db);
 
     beforeEach(function() {
         sandbox = sinon.sandbox.create();
@@ -73,7 +73,7 @@ describe('characterHelper', function() {
         });
 
         it("should return errors on missing character name", function() {
-            return characterHelper.create(undefined, TEST_USER_ID, db)
+            return characterHelper.createCharacter(undefined, TEST_USER_ID, db)
                 .then(assert.fail)
                 .catch(function(e) {
                     assert.equal(e, Errors.CHARACTER_NAME_NOT_GIVEN);
@@ -81,7 +81,7 @@ describe('characterHelper', function() {
         });
 
         it("should return errors on invalid user id", function(done) {
-            characterHelper.create(TEST_CHARACTER_NAME, 132, db)
+            characterHelper.createCharacter(TEST_CHARACTER_NAME, 132, db)
                 .catch(function(e) {
                     done();
                 });
@@ -89,7 +89,8 @@ describe('characterHelper', function() {
 
         it("should create a character with given name under given user",
             function() {
-            return characterHelper.create("testcharacter", TEST_USER_ID, db)
+            return characterHelper.createCharacter(
+                "testcharacter", TEST_USER_ID, db)
                 .then(function(characterId) {
                     assert.equal(characterId, TEST_CHARACTER_ID);
                 });

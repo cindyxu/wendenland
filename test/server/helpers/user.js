@@ -7,11 +7,11 @@ var chai = require('chai'),
 var Errors = require('../../../src/server/errors');
 
 var db = BPromise.promisifyAll(require('../stubdb'));
-var schemas = require('../../../src/server/db/schemas');
+var tables = require('../../../src/server/db/tables');
 
 describe('userHelper', function() {
 
-    var userSql = require('../../../src/server/sql/user')(schemas);
+    var userSql = require('../../../src/server/sql/user')(tables);
     var bcrypt = BPromise.promisifyAll(require("bcrypt-nodejs"));
     var userHelper = require('../../../src/server/helpers/user')(
         userSql, bcrypt, db);

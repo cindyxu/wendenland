@@ -1,18 +1,18 @@
-module.exports = function(schemas) {
+module.exports = function(tables) {
 
-    var inhabitantSchema = schemas.inhabitants;
+    var inhabitantTable = tables.inhabitants;
 
     var inhabitantSql = {};
 
     inhabitantSql.insertRow = function(
         name, speciesId, partyId, str, dex, int, luk, db) {
-        // var query = inhabitantSchema.insert(
-        //         inhabitantSchema.name.value(name),
-        //         inhabitantSchema.species_id.value(speciesId),
-        //         inhabitantSchema.stat_str.value(str),
-        //         inhabitantSchema.stat_dex.value(dex),
-        //         inhabitantSchema.stat_int.value(int),
-        //         inhabitantSchema.stat_luk.value(luk)
+        // var query = inhabitantTable.insert(
+        //         inhabitantTable.name.value(name),
+        //         inhabitantTable.species_id.value(speciesId),
+        //         inhabitantTable.stat_str.value(str),
+        //         inhabitantTable.stat_dex.value(dex),
+        //         inhabitantTable.stat_int.value(int),
+        //         inhabitantTable.stat_luk.value(luk)
         //     ).toQuery();
         // return db.runAsync(query.text, query.values)
         //     .then(function() { return this.lastID; });

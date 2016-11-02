@@ -1,4 +1,4 @@
-// Opens an sqlite database at given path and reads sql schemas from tables.
+// Opens an sqlite database at given path and reads sql definitions from tables.
 // Returns a map of table defines.
 
 var _ = require('lodash');

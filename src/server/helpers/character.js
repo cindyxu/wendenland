@@ -2,17 +2,17 @@ var BPromise = require('bluebird');
 
 var Errors = require('../errors');
 
-module.exports = function(inhabitantHelper, characterSql, db) {
+module.exports = function(speciesSql, characterSql, inhabitantHelper, db) {
 
     var characterHelper = {};
 
-    characterHelper.create = function(name, userId) {
+    characterHelper.createCharacter = function(name, userId) {
         if (!name) return BPromise.reject(Errors.CHARACTER_NAME_NOT_GIVEN);
 
-        return characterHelper._createTransaction(name, userId, db);
+        return characterHelper._createCharacterTransaction(name, userId);
     };
 
-    characterHelper._createTransaction = function(name, userId) {
+    characterHelper._createCharacterTransaction = function(name, userId) {
         var transaction;
         var characterId;
         // atomic operation
@@ -21,11 +21,11 @@ module.exports = function(inhabitantHelper, characterSql, db) {
             // insert a new inhabitant of the "traveller" species
             .then(function(resTransaction) {
                 transaction = BPromise.promisifyAll(resTransaction);
+                return speciesSql.findByName("traveller", db);
             })
-
-            .then(function() {
+            .then(function(resSpecies) {
                 return inhabitantHelper.createOfSpecies(
-                    name, "traveller" /* speciesName */, transaction);
+                    name, resSpecies, transaction);
             })
             // insert a character with the new inhabitant under given user
             .then(function(resInhabitantId) {

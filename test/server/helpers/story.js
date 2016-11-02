@@ -6,15 +6,15 @@ var chai = require('chai'),
 
 var Errors = require('../../../src/server/errors');
 
-var schemas = require('../../../src/server/db/schemas');
+var tables = require('../../../src/server/db/tables');
 var db = BPromise.promisifyAll(require('../stubdb'));
 
 describe('storyHelper', function() {
 
-    var pageSql = require('../../../src/server/sql/page')(schemas);
-    var storySql = require('../../../src/server/sql/story')(schemas);
-    var partySql = require('../../../src/server/sql/party')(schemas);
-    var moveActionSql = require('../../../src/server/sql/move-action')(schemas);
+    var pageSql = require('../../../src/server/sql/page')(tables);
+    var storySql = require('../../../src/server/sql/story')(tables);
+    var partySql = require('../../../src/server/sql/party')(tables);
+    var moveActionSql = require('../../../src/server/sql/move-action')(tables);
 
     var actionHelper = require('../../../src/server/helpers/action')(
         moveActionSql, db);
@@ -68,8 +68,8 @@ describe('storyHelper', function() {
         });
 
         it("should create a story with given pages and actions", function() {
-            return storyHelper.advance(TEST_FROM_STORY_ID, TEST_ACTION,
-                [TEST_PAGE_1_TEXT, TEST_PAGE_2_TEXT], db)
+            return storyHelper.advanceTransaction(TEST_FROM_STORY_ID,
+                TEST_ACTION, [TEST_PAGE_1_TEXT, TEST_PAGE_2_TEXT], db)
                 .then(function(newStoryId) {
                     assert.equal(newStoryId, TEST_TO_STORY_ID);
                 });

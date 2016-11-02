@@ -1,12 +1,12 @@
-module.exports = function(schemas) {
+module.exports = function(tables) {
 
-	var speciesSchema = schemas.species;
+	var speciesTable = tables.species;
 
 	var speciesSql = {};
 
 	speciesSql.findByName = function(name, db) {
-	    // var query = speciesSchema.select()
-	    //     .where(speciesSchema.name.equals(name)).toQuery();
+	    // var query = speciesTable.select()
+	    //     .where(speciesTable.name.equals(name)).toQuery();
 	    // return db.getAsync(query.text, query.values);
 	    throw "Not implemented!";
 	};

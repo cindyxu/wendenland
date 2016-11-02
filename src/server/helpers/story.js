@@ -11,7 +11,9 @@ module.exports = function(pageSql, storySql, partyHelper, actionHelper, db) {
         return storySql.findById(id, db);
     };
 
-    storyHelper.advance = function(parentId, actionProps, pages, db) {
+    storyHelper.advanceTransaction = function(
+        parentId, actionProps, pages, db) {
+
         var transaction;
         var partyId;
         var storyId;
