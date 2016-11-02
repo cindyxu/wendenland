@@ -5,17 +5,15 @@ var _ = require('lodash');
 var sqlite3 = require('sqlite3');
 var BPromise = require('bluebird');
 
-var readTables = function(path) {
+var readTables = function(db) {
 	var dbDefine = {};
 
-    var testDb = BPromise.promisifyAll(
-        new sqlite3.Database(path));
-    testDb.allAsync(
+    db.allAsync(
         "SELECT name FROM sqlite_master WHERE type='table' ORDER BY name")
         .then(function(tables) {
             var p = Promise.resolve();
             _.each(tables, function(table) {
-                p = p.then(function() { return testDb.allAsync(
+                p = p.then(function() { return db.allAsync(
                 	// doesn't take parameters so we have to string concat here
                     "PRAGMA TABLE_INFO(" + table.name + ")"); })
                         .then(function(columns) {
@@ -26,7 +24,6 @@ var readTables = function(path) {
             return p;
         })
         .then(function() {
-            testDb.close();
             return dbDefine;
         });
 };
