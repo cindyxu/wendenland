@@ -8,8 +8,8 @@ module.exports = function(tables) {
         var query = userTable.insert(
                 userTable.username.value(username),
                 userTable.password_hash.value(passwordHash)
-            ).toQuery();
-        return db.queryAsync(query.text, query.values).returning()
+            ).returning().toQuery();
+        return db.queryAsync(query.text, query.values)
             .then(function(res) {
                 return res.rows[0];
             });

@@ -29,6 +29,10 @@ describe("Server", function() {
 		return client.queryAsync("ROLLBACK");
 	});
 
+	describe("userHelper", function() {
+		require('./helpers/user')(tables, client, sandbox);
+	});
+
 	describe("characterHelper", function() {
 		require('./helpers/character')(tables, client, sandbox);
 	});
