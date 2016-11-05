@@ -1,79 +1,76 @@
-var BPromise = require('bluebird');
-var sinon = require('sinon');
+// var tables = require.main.require(process.env.DB_TABLES);
 
-var chai = require('chai'),
-    assert = chai.assert;
+// var BPromise = require('bluebird');
+// var sinon = require('sinon');
 
-var Errors = require('../../../src/server/errors');
+// var chai = require('chai'),
+//     assert = chai.assert;
 
-var tables = require('../../../src/server/db/tables');
-var db = BPromise.promisifyAll(require('../stubdb'));
+// var Errors = require('../../../server/errors');
 
-describe('storyHelper', function() {
+// var pageSql = require('../../../server/sql/page')(tables);
+// var storySql = require('../../../server/sql/story')(tables);
+// var partySql = require('../../../server/sql/party')(tables);
+// var actionSql = require('../../../server/sql/action')(tables);
 
-    var pageSql = require('../../../src/server/sql/page')(tables);
-    var storySql = require('../../../src/server/sql/story')(tables);
-    var partySql = require('../../../src/server/sql/party')(tables);
-    var actionSql = require('../../../src/server/sql/action')(tables);
+// describe('storyHelper', function() {
 
-    var actionHelper = require('../../../src/server/helpers/action')(
-        actionSql, db);
-    var partyHelper = require('../../../src/server/helpers/party')(
-        storySql, partySql, db);
-    var storyHelper = require('../../../src/server/helpers/story')(
-        pageSql, storySql, partyHelper, actionHelper, db);
+// 	var client = BPromise.promisifyAll(new pg.Client());
 
+//     var actionHelper = require('../../../server/helpers/action')(
+//         actionSql, client);
+//     var partyHelper = require('../../../server/helpers/party')(
+//         storySql, partySql, client);
+//     var storyHelper = require('../../../server/helpers/story')(
+//         pageSql, storySql, partyHelper, actionHelper, client);
 
-    beforeEach(function () {
-        sandbox = sinon.sandbox.create();
-    });
+//     var sandbox;
 
-    afterEach(function () {
-        sandbox.restore();
-    })
+//     before(function() {
+//         return client.connectAsync();
+//     });
 
-    describe("#advanceStory", function() {
+//     after(function() {
+//         return client.endAsync();
+//     })
 
-        var TEST_FROM_STORY_ID = 123;
-        var TEST_TO_STORY_ID = 234;
+//     beforeEach(function() {
+//         sandbox = sinon.sandbox.create();
+//     });
+
+//     afterEach(function() {
+//         sandbox.restore();
+//         return BPromise.all(_.map(tables, function(table) {
+//             return client.queryAsync(table.delete().toQuery());
+//         }));
+//     })
+
+//     describe("#advanceStory", function() {
+
+//         var TEST_FROM_STORY_ID = 123;
+//         var TEST_TO_STORY_ID = 234;
         
-        var TEST_PARTY_ID = 345;
+//         var TEST_PARTY_ID = 345;
 
-        var TEST_ACTION = { "type": "move", "dir": "north" };
-        var TEST_PAGE_1_ID = 456;
-        var TEST_PAGE_1_TEXT = "You push the door. It creaks open.";
-        var TEST_PAGE_2_ID = 567;
-        var TEST_PAGE_2_TEXT = "It's dark inside.";
+//         var TEST_ACTION = { "type": "move", "dir": "north" };
+//         var TEST_PAGE_1_ID = 456;
+//         var TEST_PAGE_1_TEXT = "You push the door. It creaks open.";
+//         var TEST_PAGE_2_ID = 567;
+//         var TEST_PAGE_2_TEXT = "It's dark inside.";
 
-        var TEST_ACTION_ID = 678;
+//         var TEST_ACTION_ID = 678;
 
-        beforeEach(function() {
-            sandbox.stub(pageSql, 'insertPages', function(storyId, pages, db) {
-                return;
-            });
-            sandbox.stub(partySql, 'setPartyStoryId',
-                function(partyId, storyId, db) {
-                return;
-            });
-            sandbox.stub(storySql, 'findStoryById',
-                function(storyId, db) {
-                    return { id: storyId, party_id: TEST_PARTY_ID };
-                });
-            sandbox.stub(storySql, 'insertStory',
-                function(parentId, partyId, actionType, db) {
-                    return TEST_TO_STORY_ID;
-                });
-            sandbox.stub(actionSql, 'insertMoveAction',
-                function(storyId, dir, db) { return TEST_ACTION_ID; });
-        });
+//         before(function() {
+        	
+//     	});
 
-        it("should create a story with given pages and actions", function() {
-            return storyHelper.advanceStory(TEST_FROM_STORY_ID,
-                TEST_ACTION, [TEST_PAGE_1_TEXT, TEST_PAGE_2_TEXT], db)
-                .then(function(newStoryId) {
-                    assert.equal(newStoryId, TEST_TO_STORY_ID);
-                });
-        });
-    });
+//         it("should create a story with given pages and actions", function() {
+//             return storyHelper.advanceStorySeq(TEST_FROM_STORY_ID,
+//                 TEST_ACTION, [TEST_PAGE_1_TEXT, TEST_PAGE_2_TEXT], db)
+//                 .then(function(newStoryId) {
+//                     assert.equal(newStoryId, TEST_TO_STORY_ID);
+//                 });
+//         });
+//     });
 
-});
+// });
