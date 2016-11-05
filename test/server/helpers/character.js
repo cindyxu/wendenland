@@ -74,8 +74,10 @@ module.exports = function(tables, client, sandbox) {
 			function() {
 			return characterHelper.createCharacterSeq(
 				TEST_CHARACTER_NAME, testUserId, client)
-				.then(function(characterId) {
-					assert(characterId);
+				
+				// assert we got a character
+				.then(function(character) {
+					assert(character);
 				})
 
 				// assert that we also created inhabitant

@@ -1,11 +1,26 @@
-DROP TABLE IF EXISTS move_actions;
-DROP TABLE IF EXISTS pages;
-DROP TABLE IF EXISTS stories;
-DROP TABLE IF EXISTS characters;
-DROP TABLE IF EXISTS users;
-DROP TABLE IF EXISTS parties;
-DROP TABLE IF EXISTS inhabitants;
-DROP TABLE IF EXISTS species;
+DROP SCHEMA public CASCADE;
+CREATE SCHEMA public;
+GRANT ALL ON SCHEMA public TO postgres;
+GRANT ALL ON SCHEMA public TO public;
+COMMENT ON SCHEMA public IS 'standard public schema';
+
+--create types
+DO $$
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'direction') THEN
+        CREATE TYPE direction AS ENUM (
+            'north',
+            'south',
+            'east',
+            'west',
+            'northwest',
+            'southwest',
+            'northeast',
+            'southeast'
+        );
+    END IF;
+    --more types here...
+END$$;
 
 CREATE TABLE species(
     id serial PRIMARY KEY,
@@ -24,12 +39,12 @@ CREATE TABLE inhabitants(
     stat_str integer NOT NULL DEFAULT 0,
     stat_dex integer NOT NULL DEFAULT 0,
     stat_int integer NOT NULL DEFAULT 0,
-    stat_luk integer NOT NULL DEFAULT 0,
-    FOREIGN KEY(species_id) REFERENCES species(id)
+    stat_luk integer NOT NULL DEFAULT 0
 );
 
 CREATE TABLE parties(
-    id serial PRIMARY KEY
+    id serial PRIMARY KEY,
+    story_id integer
 );
 
 CREATE TABLE users(
@@ -41,31 +56,45 @@ CREATE TABLE users(
 CREATE TABLE characters(
     id serial PRIMARY KEY,
     user_id integer NOT NULL,
-    inhabitant_id integer NOT NULL,
-    FOREIGN KEY(user_id) REFERENCES users(id),
-    FOREIGN KEY(inhabitant_id) REFERENCES inhabitants(id)
+    inhabitant_id integer NOT NULL
 );
 
 CREATE TABLE stories(
     id serial PRIMARY KEY,
     action_type text,
     party_id integer NOT NULL,
-    parent_id integer,
-    FOREIGN KEY(parent_id) REFERENCES stories(id),
-    FOREIGN KEY(party_id) REFERENCES parties(id)
+    parent_id integer
 );
 
 CREATE TABLE pages(
     id serial PRIMARY KEY,
     story_id integer NOT NULL,
     idx integer NOT NULL,
-    content text NOT NULL,
-    FOREIGN KEY(story_id) REFERENCES stories(id)
+    content text NOT NULL
 );
 
 CREATE TABLE move_actions(
     id serial PRIMARY KEY,
     story_id integer NOT NULL,
-    dir text NOT NULL,
-    FOREIGN KEY(story_id) REFERENCES stories(id)
+    dir direction NOT NULL
 );
+
+ALTER TABLE inhabitants
+ADD FOREIGN KEY(species_id) REFERENCES species(id);
+
+ALTER TABLE parties
+ADD FOREIGN KEY(story_id) REFERENCES stories(id);
+
+ALTER TABLE characters
+ADD FOREIGN KEY(user_id) REFERENCES users(id),
+ADD FOREIGN KEY(inhabitant_id) REFERENCES inhabitants(id);
+
+ALTER TABLE stories
+ADD FOREIGN KEY(parent_id) REFERENCES stories(id),
+ADD FOREIGN KEY(party_id) REFERENCES parties(id);
+
+ALTER TABLE pages
+ADD FOREIGN KEY(story_id) REFERENCES stories(id);
+
+ALTER TABLE move_actions
+ADD FOREIGN KEY(story_id) REFERENCES stories(id);

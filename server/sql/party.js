@@ -16,7 +16,7 @@ module.exports = function(tables) {
         var updateObj = {};
         updateObj[partyTable.story_id.name] = storyId;
         var query = partyTable.update(updateObj)
-         .where(partyTable.party_id.equals(partyId)).toQuery();
+         .where(partyTable.id.equals(partyId)).toQuery();
         return db.queryAsync(query.text, query.values)
             .then(function(res) {
                 return;

@@ -18,15 +18,23 @@ describe("Server", function() {
 		return client.endAsync();
 	});
 
+	beforeEach(function() {
+		// can't really clear tables without violating foreign key constraints,
+		// so we will wrap our tests inside transactions and rollback after
+		return client.queryAsync("BEGIN");
+	});
+
 	afterEach(function() {
 		sandbox.restore();
-		return BPromise.all(_.map(tables, function(table) {
-			return client.queryAsync(table.delete().toQuery());
-		}));
+		return client.queryAsync("ROLLBACK");
 	});
 
 	describe("characterHelper", function() {
 		require('./helpers/character')(tables, client, sandbox);
+	});
+
+	describe("storyHelper", function() {
+		require('./helpers/story')(tables, client, sandbox);
 	});
 
 });

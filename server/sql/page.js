@@ -4,13 +4,14 @@ module.exports = function(tables) {
 
 	var pageSql = {};
 
-	pageSql.insertPages = function(storyId, pages) {
+	pageSql.insertPages = function(pages, storyId, db) {
 		var insertObj = [];
 		for (var i = 0; i < pages.length; i++) {
 			var pageObj = {};
-			pageObj[pageTable.storyId.name] = storyId;
-			pageObj[pageTable.index.name] = i;
-			pageObj[pageTable.text.name] = pages[i];
+			pageObj[pageTable.story_id.name] = storyId;
+			pageObj[pageTable.idx.name] = i;
+			pageObj[pageTable.content.name] = pages[i];
+			insertObj.push(pageObj);
 		}
 	    var query = pageTable.insert(insertObj).returning().toQuery();
 	    return db.queryAsync(query.text, query.values)

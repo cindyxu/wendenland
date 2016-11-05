@@ -6,7 +6,7 @@ module.exports = function(tables) {
 
 	actionSql.insertMoveAction = function(storyId, dir, db) {
 	    var query = moveActionTable.insert(
-	            moveActionTable.storyId.value(storyId),
+	            moveActionTable.story_id.value(storyId),
 	            moveActionTable.dir.value(dir)
 	        ).returning().toQuery();
 	    return db.queryAsync(query.text, query.values)
