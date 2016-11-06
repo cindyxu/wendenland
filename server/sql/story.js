@@ -13,10 +13,12 @@ module.exports = function(tables) {
             });
     };
 
-    storySql.insertStory = function(parentId, partyId, actionType, db) {
+    storySql.insertStory = function(
+        partyId, parentId, actionType, waypointId, db) {
         var query = storyTable.insert(
                 storyTable.parent_id.value(parentId),
                 storyTable.party_id.value(partyId),
+                storyTable.waypoint_id.value(waypointId),
                 storyTable.action_type.value(actionType)
                 ).returning().toQuery();
         return db.queryAsync(query.text, query.values)

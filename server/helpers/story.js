@@ -3,20 +3,19 @@ var _ = require('lodash');
 
 var Errors = require('../errors');
 
-module.exports = function(pageSql, storySql, partyHelper, actionHelper) {
+module.exports = function(pageSql, storySql, partyHelper) {
 
     var storyHelper = {};
 
-    storyHelper.advanceStorySeq = function(
-        parent, actionProps, pageTexts, tr) {
+    storyHelper.createStorySeq = function(
+        partyId, pageTexts, parentId, actionProps, waypointId, tr) {
 
         var partyId;
         var story;
-        var action;
 
-        partyId = parent.party_id;
+        var actionType = actionProps ? actionProps.type : undefined;
         return storySql.insertStory(
-            parent.id, partyId, actionProps.type, tr)
+            partyId, parentId, actionType, waypointId, tr)
 
             // add the pages to the database under new story
             .then(function(resStory) {
@@ -26,7 +25,9 @@ module.exports = function(pageSql, storySql, partyHelper, actionHelper) {
 
             // add the action to the database under new story
             .then(function() {
-                return actionHelper.createAction(story.id, actionProps, tr);
+                if (actionProps) {
+                    return actionHelper.createAction(story.id, actionProps, tr);
+                } else return BPromise.resolve();
             })
 
             // party is now on new story

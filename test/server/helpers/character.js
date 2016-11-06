@@ -8,8 +8,10 @@ module.exports = function(tables, client, sandbox) {
 
 	console.log("CHARACTER client " + client);
 
+	var userSql =
+		require('../../../server/sql/user')(tables);
 	var speciesSql =
-	require('../../../server/sql/species')(tables);
+		require('../../../server/sql/species')(tables);
 	var inhabitantSql =
 		require('../../../server/sql/inhabitant')(tables);
 	var partySql = require('../../../server/sql/party')(tables);
@@ -29,27 +31,17 @@ module.exports = function(tables, client, sandbox) {
 
 		beforeEach(function() {
 
-			console.log("character before");
-
 			var speciesTable = tables.species;
 			var userTable = tables.users;
 
-			var insertTravellerQuery = speciesTable.insert(
-				speciesTable.name.value("traveller")).toQuery();
-			
-			return client.queryAsync(insertTravellerQuery.text,
-				insertTravellerQuery.values)
+			return speciesSql.insertSpecies("traveller", 0, 0, 0, 0, client)
 
-				.then(function() {
-					var insertUserQuery = userTable.insert(
-					userTable.username.value("testuser"),
-					userTable.username.value("testpass")).returning().toQuery();
-					return client.queryAsync(insertUserQuery.text,
-						insertUserQuery.values)
+				.then(function(species) {
+					return userSql.insertUser("testuser", "testhash", client);
 				})
 
-				.then(function(res) {
-					testUserId = res.rows[0].id;
+				.then(function(user) {
+					testUserId = user.id;
 				});
 		});
 
