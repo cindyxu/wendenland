@@ -5,7 +5,7 @@ module.exports = function(tables) {
     var inhabitantSql = {};
 
     inhabitantSql.insertInhabitantOfSpecies = function(
-        db, name, partyId, species) {
+        db, name, species, partyId) {
         return inhabitantSql.insertInhabitant(
             db, name, species.id, partyId,
             species.stat_str, species.stat_dex,

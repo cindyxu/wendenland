@@ -33,6 +33,10 @@ describe("Server", function() {
 		require('./helpers/user')(tables, client, sandbox);
 	});
 
+	describe("inhabitantHelper", function() {
+		require('./helpers/inhabitant')(tables, client, sandbox);
+	});
+
 	describe("characterHelper", function() {
 		require('./helpers/character')(tables, client, sandbox);
 	});

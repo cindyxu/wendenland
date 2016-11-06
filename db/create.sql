@@ -1,30 +1,15 @@
---delete all tables
-
-DROP SCHEMA public CASCADE;
-CREATE SCHEMA public;
-GRANT ALL ON SCHEMA public TO postgres;
-GRANT ALL ON SCHEMA public TO public;
-COMMENT ON SCHEMA public IS 'standard public schema';
-
---create enums
-DO $$
-BEGIN
-    IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'direction') THEN
-        CREATE TYPE direction AS ENUM (
-            'north',
-            'south',
-            'east',
-            'west',
-            'northwest',
-            'southwest',
-            'northeast',
-            'southeast',
-            'down',
-            'up'
-        );
-    END IF;
-    --more types here...
-END$$;
+CREATE TYPE direction AS ENUM (
+    'north',
+    'south',
+    'east',
+    'west',
+    'northwest',
+    'southwest',
+    'northeast',
+    'southeast',
+    'down',
+    'up'
+);
 
 --create all tables
 
@@ -35,6 +20,17 @@ CREATE TABLE species(
     stat_dex integer NOT NULL DEFAULT 0,
     stat_int integer NOT NULL DEFAULT 0,
     stat_luk integer NOT NULL DEFAULT 0
+);
+
+CREATE TABLE item_blueprints(
+    id serial PRIMARY KEY,
+    name text NOT NULL
+);
+
+CREATE TABLE items(
+    id serial PRIMARY KEY,
+    blueprint_id integer NOT NULL,
+    inhabitant_id integer
 );
 
 CREATE TABLE inhabitants(
@@ -119,6 +115,10 @@ CREATE TABLE chirp_actions(
 );
 
 --add foreign keys afterward now that all tables exist
+
+ALTER TABLE items
+ADD FOREIGN KEY(blueprint_id) REFERENCES item_blueprints(id);
+ADD FOREIGN KEY(inhabitant_id) REFERENCES inhabitants(id);
 
 ALTER TABLE inhabitants
 ADD FOREIGN KEY(species_id) REFERENCES species(id);

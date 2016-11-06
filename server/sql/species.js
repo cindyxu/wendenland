@@ -20,7 +20,7 @@ module.exports = function(tables) {
 			speciesTable.stat_dex.value(dex),
 			speciesTable.stat_int.value(int),
 			speciesTable.stat_luk.value(luk)
-		).toQuery();
+		).returning().toQuery();
 	    return db.queryAsync(query.text, query.values)
 	    	.then(function(res) {
 	    		return res.rows[0];

@@ -9,7 +9,7 @@ module.exports = function(partySql, inhabitantSql) {
         return partySql.insertParty(tr)
             .then(function(party) {
                 return inhabitantSql.insertInhabitantOfSpecies(
-                    tr, name, party.id, species);
+                    tr, name, species, party.id);
             })
     };
 
