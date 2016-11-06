@@ -36,7 +36,7 @@ module.exports = function(tables, client, sandbox) {
         });
     });
 
-    describe("It always", function() {
+    describe("always", function() {
 
       var newStory;
 
@@ -68,18 +68,17 @@ module.exports = function(tables, client, sandbox) {
         var partyQuery = tables.parties.select()
           .where(tables.parties.id.equals(testPartyId))
           .toQuery();
-          return client.queryAsync(partyQuery.text, partyQuery.values)
-        .then(function(res) {
-          assert.equal(res.rows[0].story_id, newStory.id);
-        });
+        return client.queryAsync(partyQuery.text, partyQuery.values)
+          .then(function(res) {
+            assert.equal(res.rows[0].story_id, newStory.id);
+          });
       });
     });
 
-    describe("With a parent", function() {
+    describe("from a parent", function() {
 
+      var TEST_ACTION = { "type" : "chirp" };
       var parentId;
-
-      var newStory;
 
       beforeEach(function() {
         // create a test parent story
@@ -87,30 +86,45 @@ module.exports = function(tables, client, sandbox) {
           tables.stories.party_id.value(testPartyId)
         ).returning().toQuery();
         return client.queryAsync(parentQuery.text, parentQuery.values)
-        .then(function(res) {
-          testParent = res.rows[0].id;
-          
-          return storyHelper.createStorySeq(testPartyId,
-            [TEST_PAGE_1_TEXT, TEST_PAGE_2_TEXT],
-            parentId, undefined, undefined, client);
-        })
-        .then(function(resStory) {
-          newStory = resStory;
-        });
+          .then(function(res) {
+            testParent = res.rows[0].id;
+          });
       });
 
-      it("should assign parent story", function() {
-        assert.equal(newStory.parent_id, parentId);
-        // // assert that we added an action
-        // .then(function() {
-        //   var actionQuery = tables.move_actions.select().where(
-        //     tables.move_actions.story_id.equals(newStory.id)).toQuery();
-        //   return client.queryAsync(actionQuery.text, actionQuery.values);
-        // })
-        // .then(function(res) {
-        //   assert.equal(res.rows.length, 1);
-        //   assert.equal(res.rows[0].dir, "north");
-        // })
+      describe("always", function() {
+
+        var newStory;
+        beforeEach(function() {
+          return storyHelper.createStorySeq(testPartyId,
+            [TEST_PAGE_1_TEXT, TEST_PAGE_2_TEXT],
+            parentId, TEST_ACTION, undefined, client)
+            .then(function(resStory) {
+              newStory = resStory;
+            });
+        });
+
+        it("should assign parent story", function() {
+          assert.equal(newStory.parent_id, parentId);
+        });
+
+        it("should create an action", function() {
+          var actionQuery = tables.chirp_actions.select().where(
+            tables.chirp_actions.story_id.equals(newStory.id)).toQuery();
+          return client.queryAsync(actionQuery.text, actionQuery.values)
+            .then(function(res) {
+              assert.equal(res.rows.length, 1);
+            });
+        });
+          // // assert that we added an action
+          // .then(function() {
+          //   var actionQuery = tables.move_actions.select().where(
+          //     tables.move_actions.story_id.equals(newStory.id)).toQuery();
+          //   return client.queryAsync(actionQuery.text, actionQuery.values);
+          // })
+          // .then(function(res) {
+          //   assert.equal(res.rows.length, 1);
+          //   assert.equal(res.rows[0].dir, "north");
+          // })
       });
     });
   });

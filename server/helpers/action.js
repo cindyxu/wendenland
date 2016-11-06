@@ -10,6 +10,9 @@ module.exports = function(actionSql, db) {
             case ActionTypes.MOVE:
                 return actionSql.insertMoveAction(
                     storyId, actionProps.dir, db);
+            case ActionTypes.CHIRP:
+                return actionSql.insertChirpAction(
+                    storyId, db);
             default:
                 return BPromise.reject("Not implemented!");
         }

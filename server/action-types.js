@@ -1,3 +1,4 @@
 module.exports = {
-    MOVE: "move"
+    MOVE: "move",
+    CHIRP: "chirp"
 };

@@ -17,9 +17,6 @@ module.exports = function(speciesSql, characterSql, inhabitantHelper) {
             .then(function(resInhabitant) {
                 return characterSql.insertCharacter(
                     userId, resInhabitant.id, tr); 
-            })
-            .then(function(resCharacter) {
-                return resCharacter.id;
             });
     };
 

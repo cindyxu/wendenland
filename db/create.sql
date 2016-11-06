@@ -109,6 +109,11 @@ CREATE TABLE move_actions(
     dir direction NOT NULL
 );
 
+CREATE TABLE chirp_actions(
+    id serial PRIMARY KEY,
+    story_id integer NOT NULL
+);
+
 --add foreign keys afterward now that all tables exist
 
 ALTER TABLE inhabitants
@@ -140,3 +145,6 @@ ADD FOREIGN KEY(story_id) REFERENCES stories(id);
 ALTER TABLE move_actions
 ADD FOREIGN KEY(story_id) REFERENCES stories(id),
 ADD FOREIGN KEY(from_waypoint_id, to_waypoint_id) REFERENCES paths(from_waypoint_id, to_waypoint_id);
+
+ALTER TABLE chirp_actions
+ADD FOREIGN KEY(story_id) REFERENCES stories(id);

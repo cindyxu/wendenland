@@ -3,7 +3,7 @@ var _ = require('lodash');
 
 var Errors = require('../errors');
 
-module.exports = function(pageSql, storySql, partyHelper) {
+module.exports = function(pageSql, storySql, partyHelper, actionHelper) {
 
     var storyHelper = {};
 
