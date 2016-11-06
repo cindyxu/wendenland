@@ -18,7 +18,9 @@ BEGIN
             'northwest',
             'southwest',
             'northeast',
-            'southeast'
+            'southeast',
+            'down',
+            'up'
         );
     END IF;
     --more types here...
@@ -83,7 +85,9 @@ CREATE TABLE waypoints(
 CREATE TABLE paths(
     from_waypoint_id integer NOT NULL,
     to_waypoint_id integer NOT NULL,
-    dir direction NOT NULL
+    dir direction NOT NULL,
+    UNIQUE(from_waypoint_id, dir),
+    PRIMARY KEY(from_waypoint_id, to_waypoint_id)
 );
 
 CREATE TABLE stories(
@@ -95,10 +99,10 @@ CREATE TABLE stories(
 );
 
 CREATE TABLE pages(
-    id serial PRIMARY KEY,
     story_id integer NOT NULL,
     idx integer NOT NULL,
-    content text NOT NULL
+    content text NOT NULL,
+    PRIMARY KEY(story_id, idx)
 );
 
 CREATE TABLE move_actions(
@@ -106,7 +110,7 @@ CREATE TABLE move_actions(
     from_waypoint_id integer NOT NULL,
     to_waypoint_id integer NOT NULL,
     story_id integer NOT NULL,
-    dir direction NOT NULL
+    is_success boolean NOT NULL
 );
 
 CREATE TABLE chirp_actions(
@@ -131,8 +135,7 @@ ADD FOREIGN KEY(map_id) REFERENCES maps(id);
 
 ALTER TABLE paths
 ADD FOREIGN KEY(from_waypoint_id) REFERENCES waypoints(id),
-ADD FOREIGN KEY(to_waypoint_id) REFERENCES waypoints(id),
-ADD PRIMARY KEY(from_waypoint_id, to_waypoint_id);
+ADD FOREIGN KEY(to_waypoint_id) REFERENCES waypoints(id);
 
 ALTER TABLE stories
 ADD FOREIGN KEY(parent_id) REFERENCES stories(id),

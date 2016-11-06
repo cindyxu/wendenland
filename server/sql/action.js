@@ -5,10 +5,13 @@ module.exports = function(tables) {
 
 	var actionSql = {};
 
-	actionSql.insertMoveAction = function(db, storyId, dir) {
+	actionSql.insertMoveAction = function(
+		db, storyId, fromWaypointId, toWaypointId, isSuccess) {
 	    var query = moveActionTable.insert(
 	            moveActionTable.story_id.value(storyId),
-	            moveActionTable.dir.value(dir)
+	            moveActionTable.from_waypoint_id.value(fromWaypointId),
+	            moveActionTable.to_waypoint_id.value(toWaypointId),
+	            moveActionTable.is_success.value(isSuccess)
 	        ).returning().toQuery();
 	    return db.queryAsync(query.text, query.values)
 	    	.then(function(res) {

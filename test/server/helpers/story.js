@@ -3,6 +3,7 @@ var chai = require('chai'),
   assert = chai.assert;
 
 var Errors = require('../../../server/errors');
+var ActionTypes = require('../../../server/action-types');
 
 module.exports = function(tables, client, sandbox) {
 
@@ -10,6 +11,7 @@ module.exports = function(tables, client, sandbox) {
   var storySql = require('../../../server/sql/story')(tables);
   var partySql = require('../../../server/sql/party')(tables);
   var actionSql = require('../../../server/sql/action')(tables);
+  var mapSql = require('../../../server/sql/map')(tables);
 
   var actionHelper = require('../../../server/helpers/action')(
     actionSql, client);
@@ -20,19 +22,34 @@ module.exports = function(tables, client, sandbox) {
 
   describe("#createStorySeq", function() {
     
-    var TEST_MAP_NAME = "testmap";
-    var TEST_ACTION = { "type" : "move", "dir" : "north" };
     var TEST_PAGE_1_TEXT = "You push the door. It creaks open.";
     var TEST_PAGE_2_TEXT = "It's dark inside.";
+
+    var TEST_MAP_NAME = "testmap";
+    var map;
+    var TEST_WAYPOINT_1_NAME = "testwaypoint1";
+    var testwaypoint1;
 
     var testPartyId;
 
     beforeEach(function() {
-
       // create a test party
       return partySql.insertParty(client)
         .then(function(party) {
           testPartyId = party.id;
+
+          // create a test map
+          return mapSql.insertMap(client, TEST_MAP_NAME, 0, 0, 0, 0);
+        })
+        .then(function(resMap) {
+          map = resMap;
+
+          // create a test waypoint
+          return mapSql.insertWaypoint(
+            client, map.id, TEST_WAYPOINT_1_NAME, 0, 0, 0, 0);
+        })
+        .then(function(resWaypoint) {
+          testwaypoint1 = resWaypoint;
         });
     });
 
@@ -46,7 +63,7 @@ module.exports = function(tables, client, sandbox) {
           .then(function(resStory) {
             newStory = resStory;
           });
-      })
+      });
       
       it("should create a new story", function() {
         assert(newStory);
@@ -76,17 +93,18 @@ module.exports = function(tables, client, sandbox) {
 
     describe("from a parent", function() {
 
-      var TEST_ACTION = { "type" : "chirp" };
-      var parentId;
+      var TEST_ACTION = { "type" : ActionTypes.CHIRP };
+      var testParentId;
 
       beforeEach(function() {
         // create a test parent story
         var parentQuery = tables.stories.insert(
-          tables.stories.party_id.value(testPartyId)
+          tables.stories.party_id.value(testPartyId),
+          tables.stories.waypoint_id.value(testwaypoint1.id)
         ).returning().toQuery();
         return client.queryAsync(parentQuery.text, parentQuery.values)
           .then(function(res) {
-            testParent = res.rows[0].id;
+            testParentId = res.rows[0].id;
           });
       });
 
@@ -95,14 +113,14 @@ module.exports = function(tables, client, sandbox) {
         var newStory;
         beforeEach(function() {
           return storyHelper.createStorySeq(client, testPartyId,
-            [TEST_PAGE_1_TEXT, TEST_PAGE_2_TEXT], parentId, TEST_ACTION)
+            [TEST_PAGE_1_TEXT, TEST_PAGE_2_TEXT], testParentId, TEST_ACTION)
             .then(function(resStory) {
               newStory = resStory;
             });
         });
 
         it("should assign parent story", function() {
-          assert.equal(newStory.parent_id, parentId);
+          assert.equal(newStory.parent_id, testParentId);
         });
 
         it("should create an action", function() {
@@ -113,16 +131,49 @@ module.exports = function(tables, client, sandbox) {
               assert.equal(res.rows.length, 1);
             });
         });
-          // // assert that we added an action
-          // .then(function() {
-          //   var actionQuery = tables.move_actions.select().where(
-          //     tables.move_actions.story_id.equals(newStory.id)).toQuery();
-          //   return client.queryAsync(actionQuery.text, actionQuery.values);
-          // })
-          // .then(function(res) {
-          //   assert.equal(res.rows.length, 1);
-          //   assert.equal(res.rows[0].dir, "north");
-          // })
+      });
+
+      describe("with move action", function() {
+
+        var TEST_WAYPOINT_2_NAME = "testwaypoint2";
+        var testwaypoint2;
+        var testPath;
+
+        beforeEach(function() {
+          return mapSql.insertWaypoint(
+            client, map.id, TEST_WAYPOINT_2_NAME, 0, 0, 0, 0)
+            .then(function(resWaypoint) {
+              testwaypoint2 = resWaypoint;
+              return mapSql.insertPath(
+                client, testwaypoint1.id, testwaypoint2.id, "north");
+            })
+            .then(function(resPath) {
+              testPath = resPath;
+              var moveAction = {
+                "type" : ActionTypes.MOVE,
+                "fromWaypointId" : testwaypoint1.id,
+                "toWaypointId" : testwaypoint2.id,
+                "isSuccess" : false
+              };
+              return storyHelper.createStorySeq(client, testPartyId,
+                [TEST_PAGE_1_TEXT, TEST_PAGE_2_TEXT],
+                testParentId, moveAction);
+            })
+            .then(function(resStory) {
+              newStory = resStory;
+            });
+        });
+
+        it("should create an action", function() {
+          var actionQuery = tables.move_actions.select().where(
+            tables.move_actions.story_id.equals(newStory.id)).toQuery();
+          return client.queryAsync(actionQuery.text, actionQuery.values)
+            .then(function(res) {
+              assert.equal(res.rows.length, 1);
+              assert.equal(res.rows[0].from_waypoint_id, testwaypoint1.id);
+              assert.equal(res.rows[0].to_waypoint_id, testwaypoint2.id);
+            });
+        });
       });
     });
   });
