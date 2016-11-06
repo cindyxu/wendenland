@@ -11,6 +11,14 @@ CREATE TYPE direction AS ENUM (
     'up'
 );
 
+CREATE TYPE trade_character_status AS ENUM (
+    'requested',
+    'open',
+    'proposed',
+    'approved',
+    'cancelled'
+);
+
 --create all tables
 
 CREATE TABLE species(
@@ -24,7 +32,8 @@ CREATE TABLE species(
 
 CREATE TABLE item_blueprints(
     id serial PRIMARY KEY,
-    name text NOT NULL
+    name text NOT NULL,
+    description text
 );
 
 CREATE TABLE items(
@@ -42,6 +51,26 @@ CREATE TABLE inhabitants(
     stat_dex integer NOT NULL DEFAULT 0,
     stat_int integer NOT NULL DEFAULT 0,
     stat_luk integer NOT NULL DEFAULT 0
+);
+
+CREATE TABLE trades(
+    id serial PRIMARY KEY,
+    character_a_id integer NOT NULL,
+    character_b_id integer NOT NULL,
+    character_a_status trade_character_status,
+    character_b_status trade_character_status
+);
+
+CREATE TABLE trade_item_offers(
+    trade_id integer NOT NULL,
+    character_id integer NOT NULL,
+    PRIMARY KEY(trade_id, character_id)
+);
+
+CREATE TABLE item_equips(
+    inhabitant_id integer NOT NULL,
+    item_id integer NOT NULL,
+    PRIMARY KEY(inhabitant_id, item_id)
 );
 
 CREATE TABLE parties(
@@ -119,6 +148,18 @@ CREATE TABLE chirp_actions(
 ALTER TABLE items
 ADD FOREIGN KEY(blueprint_id) REFERENCES item_blueprints(id);
 ADD FOREIGN KEY(inhabitant_id) REFERENCES inhabitants(id);
+
+ALTER TABLE item_equips
+ADD FOREIGN KEY(inhabitant_id) REFERENCES inhabitants(id);
+ADD FOREIGN KEY(item_id) REFERENCES items(id);
+
+ALTER TABLE trades
+ADD FOREIGN KEY(character_a_id) REFERENCES characters(id);
+ADD FOREIGN KEY(character_b_id) REFERENCES characters(id);
+
+ALTER TABLE trade_item_offers
+ADD FOREIGN KEY(trade_id) REFERENCES trades(id);
+ADD FOREIGN KEY(character_id) REFERENCES characters(id);
 
 ALTER TABLE inhabitants
 ADD FOREIGN KEY(species_id) REFERENCES species(id);
