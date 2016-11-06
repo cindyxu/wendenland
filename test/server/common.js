@@ -1,5 +1,3 @@
-var tables = require.main.require(process.env.DB_TABLES);
-
 var pg = require('pg');
 var BPromise = require('bluebird');
 var sinon = require('sinon');
@@ -30,19 +28,19 @@ describe("Server", function() {
 	});
 
 	describe("userHelper", function() {
-		require('./helpers/user')(tables, client, sandbox);
+		require('./helpers/user')(client, sandbox);
 	});
 
 	describe("inhabitantHelper", function() {
-		require('./helpers/inhabitant')(tables, client, sandbox);
+		require('./helpers/inhabitant')(client, sandbox);
 	});
 
 	describe("characterHelper", function() {
-		require('./helpers/character')(tables, client, sandbox);
+		require('./helpers/character')(client, sandbox);
 	});
 
 	describe("storyHelper", function() {
-		require('./helpers/story')(tables, client, sandbox);
+		require('./helpers/story')(client, sandbox);
 	});
 
 });

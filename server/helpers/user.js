@@ -5,7 +5,9 @@ var BPromise = require('bluebird');
 
 var Errors = require('../errors');
 
-module.exports = function(userSql, bcrypt) {
+var userSql = require('../sql/user');
+
+module.exports = function(bcrypt) {
 
     var userHelper = {};
 

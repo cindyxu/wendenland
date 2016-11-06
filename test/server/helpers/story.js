@@ -2,23 +2,19 @@ var BPromise = require('bluebird');
 var chai = require('chai'),
   assert = chai.assert;
 
+var tables = require('../../../bin/tables');
 var Errors = require('../../../server/errors');
 var ActionTypes = require('../../../server/action-types');
 
-module.exports = function(tables, client, sandbox) {
+var partySql = require('../../../server/sql/party');
+var mapSql = require('../../../server/sql/map');
 
-  var pageSql = require('../../../server/sql/page')(tables);
-  var storySql = require('../../../server/sql/story')(tables);
-  var partySql = require('../../../server/sql/party')(tables);
-  var actionSql = require('../../../server/sql/action')(tables);
-  var mapSql = require('../../../server/sql/map')(tables);
+var actionHelper = require('../../../server/helpers/action');
+var partyHelper = require('../../../server/helpers/party');
 
-  var actionHelper = require('../../../server/helpers/action')(
-    actionSql, client);
-  var partyHelper = require('../../../server/helpers/party')(
-    storySql, partySql, client);
-  var storyHelper = require('../../../server/helpers/story')(
-    pageSql, storySql, partyHelper, actionHelper, client);
+module.exports = function(client, sandbox) {
+  
+  var storyHelper = require('../../../server/helpers/story');
 
   describe("#createStorySeq", function() {
     

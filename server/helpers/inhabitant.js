@@ -1,18 +1,16 @@
 var Errors = require('../errors');
+var inhabitantSql = require('../sql/inhabitant');
+var partySql = require('../sql/party');
 
-module.exports = function(partySql, inhabitantSql) {
+var inhabitantHelper = {};
 
-    var inhabitantHelper = {};
-
-    inhabitantHelper.createInhabitantSeq = function(
-        tr, name, species) {
-        return partySql.insertParty(tr)
-            .then(function(party) {
-                return inhabitantSql.insertInhabitantOfSpecies(
-                    tr, name, species, party.id);
-            })
-    };
-
-    return inhabitantHelper;
-
+inhabitantHelper.createInhabitantSeq = function(
+    tr, name, species) {
+    return partySql.insertParty(tr)
+        .then(function(party) {
+            return inhabitantSql.insertInhabitantOfSpecies(
+                tr, name, species, party.id);
+        })
 };
+
+module.exports = inhabitantHelper;

@@ -2,21 +2,14 @@ var BPromise = require('bluebird');
 var chai = require('chai'),
   assert = chai.assert;
 
+var tables = require('../../../bin/tables');
 var Errors = require('../../../server/errors');
 
-module.exports = function(tables, client, sandbox) {
+var speciesSql = require('../../../server/sql/species');
 
-  console.log("CHARACTER client " + client);
+module.exports = function(client, sandbox) {
 
-  var speciesSql =
-    require('../../../server/sql/species')(tables);
-  var inhabitantSql =
-    require('../../../server/sql/inhabitant')(tables);
-  var partySql = require('../../../server/sql/party')(tables);
-
-  var inhabitantHelper = 
-    require('../../../server/helpers/inhabitant')(
-      partySql, inhabitantSql, client);
+  var inhabitantHelper = require('../../../server/helpers/inhabitant');
 
   describe("#createInhabitantSeq", function() {
 

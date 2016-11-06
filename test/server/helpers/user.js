@@ -2,14 +2,13 @@ var BPromise = require('bluebird');
 var chai = require('chai'),
   assert = chai.assert;
 
+var tables = require('../../../bin/tables');
 var Errors = require('../../../server/errors');
 
-module.exports = function(tables, client, sandbox) {
+module.exports = function(client, sandbox) {
 
-  var userSql = require('../../../server/sql/user')(tables);
   var bcrypt = BPromise.promisifyAll(require("bcrypt-nodejs"));
-  var userHelper = require('../../../server/helpers/user')(
-    userSql, bcrypt);
+  var userHelper = require('../../../server/helpers/user')(bcrypt);
 
   var TEST_USERNAME = "testuser";
   var TEST_PASSWORD = "testPass123!";
