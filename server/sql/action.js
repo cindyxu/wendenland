@@ -5,7 +5,7 @@ module.exports = function(tables) {
 
 	var actionSql = {};
 
-	actionSql.insertMoveAction = function(storyId, dir, db) {
+	actionSql.insertMoveAction = function(db, storyId, dir) {
 	    var query = moveActionTable.insert(
 	            moveActionTable.story_id.value(storyId),
 	            moveActionTable.dir.value(dir)
@@ -16,7 +16,7 @@ module.exports = function(tables) {
             });
 	};
 
-	actionSql.insertChirpAction = function(storyId, db) {
+	actionSql.insertChirpAction = function(db, storyId) {
 	    var query = chirpActionTable.insert(
 	            chirpActionTable.story_id.value(storyId)
 	        ).returning().toQuery();

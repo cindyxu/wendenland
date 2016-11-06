@@ -34,10 +34,10 @@ module.exports = function(tables, client, sandbox) {
       var speciesTable = tables.species;
       var userTable = tables.users;
 
-      return speciesSql.insertSpecies("traveller", 0, 0, 0, 0, client)
+      return speciesSql.insertSpecies(client, "traveller", 0, 0, 0, 0)
 
         .then(function(species) {
-          return userSql.insertUser("testuser", "testhash", client);
+          return userSql.insertUser(client, "testuser", "testhash");
         })
 
         .then(function(user) {
@@ -47,7 +47,7 @@ module.exports = function(tables, client, sandbox) {
 
     it("should return errors on missing character name", function() {
       return characterHelper.createCharacterSeq(
-        undefined, testUserId, client)
+        client, undefined, testUserId)
         .then(assert.fail)
         .catch(function(e) {
           assert.equal(e, Errors.CHARACTER_NAME_NOT_GIVEN);
@@ -56,7 +56,7 @@ module.exports = function(tables, client, sandbox) {
 
     it("should return errors on invalid user id", function(done) {
       characterHelper.createCharacterSeq(
-        TEST_CHARACTER_NAME, testUserId+1, client)
+        client, TEST_CHARACTER_NAME, testUserId+1)
         .catch(function(e) {
           done();
         });
@@ -67,7 +67,7 @@ module.exports = function(tables, client, sandbox) {
       var character;
       beforeEach(function() {
         return characterHelper.createCharacterSeq(
-          TEST_CHARACTER_NAME, testUserId, client)
+          client, TEST_CHARACTER_NAME, testUserId)
           .then(function(resCharacter) {
             character = resCharacter;
           });

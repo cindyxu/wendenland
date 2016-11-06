@@ -4,7 +4,7 @@ module.exports = function(tables) {
 
 	var pageSql = {};
 
-	pageSql.insertPages = function(pages, storyId, db) {
+	pageSql.insertPages = function(db, pages, storyId) {
 		var insertObj = [];
 		for (var i = 0; i < pages.length; i++) {
 			var pageObj = {};

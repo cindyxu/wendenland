@@ -5,18 +5,18 @@ module.exports = function(speciesSql, characterSql, inhabitantHelper) {
 
     var characterHelper = {};
 
-    characterHelper.createCharacterSeq = function(name, userId, tr) {
+    characterHelper.createCharacterSeq = function(tr, name, userId) {
         if (!name) return BPromise.reject(Errors.CHARACTER_NAME_NOT_GIVEN);
 
-        return speciesSql.findSpeciesByName("traveller", tr)
+        return speciesSql.findSpeciesByName(tr, "traveller")
             .then(function(resSpecies) {
                 return inhabitantHelper.createInhabitantSeq(
-                    name, resSpecies, tr);
+                    tr, name, resSpecies);
             })
             // insert a character with the new inhabitant under given user
             .then(function(resInhabitant) {
                 return characterSql.insertCharacter(
-                    userId, resInhabitant.id, tr); 
+                    tr, userId, resInhabitant.id); 
             });
     };
 

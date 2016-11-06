@@ -11,7 +11,7 @@ module.exports = function(userSql, bcrypt) {
 
     /* static methods */
 
-    userHelper.createUser = function(username, password, db) {
+    userHelper.createUser = function(db, username, password) {
         if (!username) return BPromise.reject(Errors.USERNAME_NOT_GIVEN);
         if (!password) return BPromise.reject(Errors.PASSWORD_NOT_GIVEN);
 
@@ -22,12 +22,12 @@ module.exports = function(userSql, bcrypt) {
             })
             .then(function(resHash) {
                 hash = resHash;
-                return userSql.insertUser(username, hash, db);
+                return userSql.insertUser(db, username, hash);
             });
     };
 
-    userHelper.matchCredentials = function(username, password, db) {
-        return userSql.findUserByUsername(username, db)
+    userHelper.matchCredentials = function(db, username, password) {
+        return userSql.findUserByUsername(db, username)
             .then(function(user) {
                 if (user) {
                     return bcrypt.compareAsync(password, user.password_hash)

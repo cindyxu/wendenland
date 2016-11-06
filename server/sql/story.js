@@ -4,7 +4,7 @@ module.exports = function(tables) {
 
     var storySql = {};
 
-    storySql.findStoryById = function(storyId, db) {
+    storySql.findStoryById = function(db, storyId) {
         var query = storyTable.select().where(storyTable.id.equals(storyId))
             .toQuery();
         return db.queryAsync(query.text, query.values)
@@ -14,7 +14,7 @@ module.exports = function(tables) {
     };
 
     storySql.insertStory = function(
-        partyId, parentId, actionType, waypointId, db) {
+        db, partyId, parentId, actionType, waypointId) {
         var query = storyTable.insert(
                 storyTable.parent_id.value(parentId),
                 storyTable.party_id.value(partyId),

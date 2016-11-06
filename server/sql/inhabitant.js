@@ -5,15 +5,15 @@ module.exports = function(tables) {
     var inhabitantSql = {};
 
     inhabitantSql.insertInhabitantOfSpecies = function(
-        name, partyId, species, db) {
+        db, name, partyId, species) {
         return inhabitantSql.insertInhabitant(
-            name, species.id, partyId,
+            db, name, species.id, partyId,
             species.stat_str, species.stat_dex,
-            species.stat_int, species.stat_luk, db);
+            species.stat_int, species.stat_luk);
     };
 
     inhabitantSql.insertInhabitant = function(
-        name, speciesId, partyId, str, dex, int, luk, db) {
+        db, name, speciesId, partyId, str, dex, int, luk) {
 
         var query = inhabitantTable.insert(
                 inhabitantTable.name.value(name),

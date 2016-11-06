@@ -5,11 +5,11 @@ module.exports = function(partySql, inhabitantSql) {
     var inhabitantHelper = {};
 
     inhabitantHelper.createInhabitantSeq = function(
-        name, species, tr) {
+        tr, name, species) {
         return partySql.insertParty(tr)
             .then(function(party) {
                 return inhabitantSql.insertInhabitantOfSpecies(
-                    name, party.id, species, tr);
+                    tr, name, party.id, species);
             })
     };
 

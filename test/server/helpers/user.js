@@ -17,7 +17,7 @@ module.exports = function(tables, client, sandbox) {
   describe("#createUser", function() {
 
     it("should return errors on missing username", function() {
-      return userHelper.createUser(undefined, TEST_PASSWORD, client)
+      return userHelper.createUser(client, undefined, TEST_PASSWORD)
         .then(assert.fail)
         .catch(function(e) {
           assert.equal(e, Errors.USERNAME_NOT_GIVEN);
@@ -25,7 +25,7 @@ module.exports = function(tables, client, sandbox) {
     });
 
     it("should return errors on invalid password", function() {
-      return userHelper.createUser(TEST_USERNAME, undefined, client)
+      return userHelper.createUser(client, TEST_USERNAME, undefined)
         .then(assert.fail)
         .catch(function(e) {
           assert.equal(e, Errors.PASSWORD_NOT_GIVEN);
@@ -33,7 +33,7 @@ module.exports = function(tables, client, sandbox) {
     });
 
     it("should create a user with given username", function() {
-      return userHelper.createUser(TEST_USERNAME, TEST_PASSWORD, client)
+      return userHelper.createUser(client, TEST_USERNAME, TEST_PASSWORD)
         .then(function(user) {
           assert(user);
           assert.equal(user.username, TEST_USERNAME);
@@ -44,21 +44,21 @@ module.exports = function(tables, client, sandbox) {
   describe("#matchCredentials", function() {
 
     beforeEach(function() {
-      return userHelper.createUser(TEST_USERNAME, TEST_PASSWORD, client);
+      return userHelper.createUser(client, TEST_USERNAME, TEST_PASSWORD);
     });
 
     it("should not return errors on valid credentials", function(done) {
-      userHelper.matchCredentials(TEST_USERNAME, TEST_PASSWORD, client)
+      userHelper.matchCredentials(client, TEST_USERNAME, TEST_PASSWORD)
         .then(function() { done(); });
     });
 
     it("should return username error on invalid username", function() {
-      return userHelper.matchCredentials("baduser", TEST_PASSWORD, client)
+      return userHelper.matchCredentials(client, "baduser", TEST_PASSWORD)
         .catch(e => assert.equal(e, Errors.USER_DOES_NOT_EXIST));
     });
 
     it("should return password error on invalid password", function() {
-      return userHelper.matchCredentials("testuser", "badpass", client)
+      return userHelper.matchCredentials(client, "testuser", "badpass")
         .catch(e => assert.equal(e, Errors.WRONG_PASSWORD));
     });
   });

@@ -8,31 +8,31 @@ module.exports = function(pageSql, storySql, partyHelper, actionHelper) {
     var storyHelper = {};
 
     storyHelper.createStorySeq = function(
-        partyId, pageTexts, parentId, actionProps, waypointId, tr) {
+        tr, partyId, pageTexts, parentId, actionProps, waypointId) {
 
         var partyId;
         var story;
 
         var actionType = actionProps ? actionProps.type : undefined;
         return storySql.insertStory(
-            partyId, parentId, actionType, waypointId, tr)
+            tr, partyId, parentId, actionType, waypointId)
 
             // add the pages to the database under new story
             .then(function(resStory) {
                 story = resStory;
-                return pageSql.insertPages(pageTexts, story.id, tr);
+                return pageSql.insertPages(tr, pageTexts, story.id);
             })
 
             // add the action to the database under new story
             .then(function() {
                 if (actionProps) {
-                    return actionHelper.createAction(story.id, actionProps, tr);
+                    return actionHelper.createAction(tr, story.id, actionProps);
                 } else return BPromise.resolve();
             })
 
             // party is now on new story
             .then(function() {
-                return partyHelper.movePartyToStory(partyId, story.id, tr);
+                return partyHelper.movePartyToStory(tr, partyId, story.id);
             })            
 
             .then(function() {

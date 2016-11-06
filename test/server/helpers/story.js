@@ -41,9 +41,8 @@ module.exports = function(tables, client, sandbox) {
       var newStory;
 
       beforeEach(function() {
-        return storyHelper.createStorySeq(testPartyId,
-          [TEST_PAGE_1_TEXT, TEST_PAGE_2_TEXT],
-          undefined, undefined, undefined, client)
+        return storyHelper.createStorySeq(client, testPartyId,
+          [TEST_PAGE_1_TEXT, TEST_PAGE_2_TEXT])
           .then(function(resStory) {
             newStory = resStory;
           });
@@ -95,9 +94,8 @@ module.exports = function(tables, client, sandbox) {
 
         var newStory;
         beforeEach(function() {
-          return storyHelper.createStorySeq(testPartyId,
-            [TEST_PAGE_1_TEXT, TEST_PAGE_2_TEXT],
-            parentId, TEST_ACTION, undefined, client)
+          return storyHelper.createStorySeq(client, testPartyId,
+            [TEST_PAGE_1_TEXT, TEST_PAGE_2_TEXT], parentId, TEST_ACTION)
             .then(function(resStory) {
               newStory = resStory;
             });

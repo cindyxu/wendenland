@@ -3,12 +3,12 @@ var _ = require('lodash');
 
 var Errors = require('../errors');
 
-module.exports = function(storySql, partySql, db) {
+module.exports = function(storySql, partySql) {
 
     var partyHelper = {};
 
-    partyHelper.movePartyToStory = function(id, storyId, db) {
-        return partySql.setPartyStoryId(id, storyId, db);
+    partyHelper.movePartyToStory = function(db, id, storyId) {
+        return partySql.setPartyStoryId(db, id, storyId);
     };
 
     return partyHelper;

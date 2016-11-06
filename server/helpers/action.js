@@ -1,18 +1,18 @@
 var ActionTypes = require('../action-types');
 var BPromise = require('bluebird');
 
-module.exports = function(actionSql, db) {
+module.exports = function(actionSql) {
 
     var actionHelper = {};
 
-    actionHelper.createAction = function(storyId, actionProps) {
+    actionHelper.createAction = function(db, storyId, actionProps) {
         switch (actionProps.type) {
             case ActionTypes.MOVE:
                 return actionSql.insertMoveAction(
-                    storyId, actionProps.dir, db);
+                    db, storyId, actionProps.dir);
             case ActionTypes.CHIRP:
                 return actionSql.insertChirpAction(
-                    storyId, db);
+                    db, storyId);
             default:
                 return BPromise.reject("Not implemented!");
         }

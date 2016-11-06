@@ -12,7 +12,7 @@ module.exports = function(tables) {
             });
     };
 
-    partySql.setPartyStoryId = function(partyId, storyId, db) {
+    partySql.setPartyStoryId = function(db, partyId, storyId) {
         var updateObj = {};
         updateObj[partyTable.story_id.name] = storyId;
         var query = partyTable.update(updateObj)
