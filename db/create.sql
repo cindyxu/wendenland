@@ -202,17 +202,15 @@ RETURNS trigger AS $function$
 BEGIN
 
   -- ensure that if trade has already been confirmed by both characters,
-  -- it cannot be cancelled anymore.
+  -- it cannot be changed anymore.
   IF OLD.from_status = 'confirmed' AND OLD.to_status = 'confirmed' THEN
-    IF NEW.from_status = 'cancelled' OR NEW.to_status = 'cancelled' THEN
-        RAISE EXCEPTION 'Cannot cancel a finished trade.';
-    END IF;
+    RAISE EXCEPTION 'Cannot change a finished trade.';
   END IF;
 
   -- ensure that if trade has been cancelled,
-  -- its status cannot be changed.
+  -- it cannot be changed anymore.
   IF OLD.from_status = 'cancelled' OR OLD.to_status = 'cancelled' THEN
-      RAISE EXCEPTION 'Cannot change a cancelled trade.';
+    RAISE EXCEPTION 'Cannot change a cancelled trade.';
   END IF;
 
   -- ensure that if one party hasn't proposed yet,

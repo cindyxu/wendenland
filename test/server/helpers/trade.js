@@ -273,12 +273,10 @@ module.exports = function(client, sandbox) {
         return tradeHelper.acceptTrade(
           client, testTradeId)
           .then(function() {
-            return tradeHelper.proposeTrade(
-              client, testTradeId, tradeSql.FROM);
+            return tradeHelper.proposeTrade(client, testTradeId, tradeSql.FROM);
           })
           .then(function() {
-            return tradeHelper.proposeTrade(
-              client, testTradeId, tradeSql.TO);
+            return tradeHelper.proposeTrade(client, testTradeId, tradeSql.TO);
           })
           .then(function() {
             return tradeHelper.confirmTradeSeq(
@@ -293,11 +291,88 @@ module.exports = function(client, sandbox) {
       it("should fail to cancel", function() {
         return tradeHelper.cancelTrade(
           client, testTradeId, tradeSql.FROM)
-          .should.be.rejectedWith("Cannot cancel a finished trade.");
+          .should.be.rejectedWith("Cannot change a finished trade.");
       });
+    });
+  });
 
+  describe("#reopenTrade", function() {
+
+    var testTradeId;
+    beforeEach(function() {
+      return tradeHelper.requestTrade(
+        client, testFromInhabitant.id, testToInhabitant.id)
+        .then(function(resTrade) {
+          testTradeId = resTrade.id;
+          return tradeHelper.acceptTrade(client, testTradeId);
+        })
+        .then(function() {
+          return tradeHelper.proposeTrade(
+            client, testTradeId, tradeSql.FROM);
+        })
+        .then(function() {
+          return tradeHelper.proposeTrade(
+            client, testTradeId, tradeSql.TO);
+        });
     });
 
+    it("should set inhabitant's status to 'open'", function() {
+      return tradeHelper.reopenTrade(client, testTradeId, tradeSql.FROM)
+        .then(function() {
+          return tradeSql.findTradeById(client, testTradeId)
+          .then(function(resTrade) {
+            assert.equal(resTrade.from_status,
+              TradeStatusTypes.OPEN);
+          });
+        })
+    });
+
+    describe("when one inhabitant has confirmed", function() {
+
+      beforeEach(function() {
+        return tradeHelper.confirmTradeSeq(
+          client, testTradeId, tradeSql.TO);
+      });
+
+      it("should set inhabitant's status back to 'proposed'", function() {
+        return tradeHelper.reopenTrade(client, testTradeId, tradeSql.FROM)
+          .then(function() {
+            return tradeSql.findTradeById(client, testTradeId);
+          })
+          .then(function(resTrade) {
+            assert.equal(resTrade.to_status, TradeStatusTypes.PROPOSED);
+          })
+      });
+    });
+
+    describe("when trade is cancelled", function() {
+
+      beforeEach(function() {
+        return tradeHelper.cancelTrade(
+          client, testTradeId, tradeSql.TO);
+      });
+
+      it("should fail to reopen trade", function() {
+        return tradeHelper.reopenTrade(client, testTradeId, tradeSql.FROM)
+          .should.be.rejectedWith("Cannot change a cancelled trade.");
+      });
+    });
+
+    describe("when trade is confirmed", function() {
+
+      beforeEach(function() {
+        return tradeHelper.confirmTradeSeq(client, testTradeId, tradeSql.FROM)
+          .then(function() {
+            return tradeHelper.confirmTradeSeq(
+              client, testTradeId, tradeSql.TO);
+          });
+      });
+
+      it("should fail to reopen trade", function() {
+        return tradeHelper.reopenTrade(client, testTradeId, tradeSql.FROM)
+          .should.be.rejectedWith("Cannot change a finished trade.");
+      });
+    });
   });
 
   describe("#confirmTradeSeq", function() {

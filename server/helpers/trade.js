@@ -27,6 +27,28 @@ tradeHelper.proposeTrade = function(db, tradeId, side) {
       db, tradeId, side, TradeStatusTypes.PROPOSED);
 };
 
+tradeHelper.reopenTrade = function(db, tradeId, side) {
+  return tradeSql.setTradeInhabitantStatus(
+      db, tradeId, side, TradeStatusTypes.OPEN, true)
+    
+    .then(function(resTrade) {
+      
+      // if opposite party confirmed, return them to 'proposed'
+      if ((side === tradeSql.FROM && 
+        resTrade.to_status === TradeStatusTypes.CONFIRMED) ||
+        (side === tradeSql.TO &&
+          resTrade.from_status === TradeStatusTypes.CONFIRMED)) {
+
+          return tradeSql.setTradeInhabitantStatus(db, tradeId,
+            side === tradeSql.FROM ? tradeSql.TO : tradeSql.FROM,
+            TradeStatusTypes.PROPOSED);
+      
+      } else {
+        return BPromise.resolve();
+      }
+    })
+};
+
 tradeHelper.confirmTradeSeq = function(tr, tradeId, side) {
   return tradeSql.setTradeInhabitantStatus(
       tr, tradeId, side, TradeStatusTypes.CONFIRMED, true)
