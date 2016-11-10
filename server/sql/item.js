@@ -1,7 +1,27 @@
 var tables = require('../../bin/tables');
+var itemBlueprintTable = tables.item_blueprints;
 var itemTable = tables.items;
 
 var itemSql = {};
+
+itemSql.findItemById = function(db, itemId) {
+  var query = itemTable.select().where(itemTable.id.equals(itemId))
+    .toQuery();
+  return db.queryAsync(query.text, query.values)
+    .then(function(res) {
+      return res.rows[0];
+    });
+};
+
+itemSql.insertItemBlueprint = function(db, name) {
+    var query = itemBlueprintTable.insert(
+            itemBlueprintTable.name.value(name)
+        ).returning().toQuery();
+    return db.queryAsync(query.text, query.values)
+        .then(function(res) {
+            return res.rows[0];
+        });
+};
 
 itemSql.insertItem = function(db, blueprintId, inhabitantId) {
     var query = itemTable.insert(
@@ -12,18 +32,6 @@ itemSql.insertItem = function(db, blueprintId, inhabitantId) {
         .then(function(res) {
             return res.rows[0];
         });
-};
-
-// assign owner of items
-itemSql.setItemsInhabitantId = function(db, itemIds, inhabitantId) {
-    var updateObj = {};
-    updateObj[itemTable.inhabitant_id.name] = inhabitantId;
-    var query = itemTable.update(updateObj)
-     .where(itemTable.id.in(itemIds)).toQuery();
-    return db.queryAsync(query.text, query.values)
-      .then(function(res) {
-        return;
-      });
 };
 
 module.exports = itemSql;

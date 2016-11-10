@@ -11,11 +11,11 @@ CREATE TYPE direction AS ENUM (
     'up'
 );
 
-CREATE TYPE trade_character_status AS ENUM (
-    'requested',
+CREATE TYPE trade_status AS ENUM (
+    'no_action',
     'open',
     'proposed',
-    'approved',
+    'confirmed',
     'cancelled'
 );
 
@@ -55,16 +55,17 @@ CREATE TABLE inhabitants(
 
 CREATE TABLE trades(
     id serial PRIMARY KEY,
-    character_a_id integer NOT NULL,
-    character_b_id integer NOT NULL,
-    character_a_status trade_character_status,
-    character_b_status trade_character_status
+    from_inhabitant_id integer NOT NULL,
+    to_inhabitant_id integer NOT NULL,
+    from_status trade_status NOT NULL DEFAULT 'open',
+    to_status trade_status NOT NULL DEFAULT 'no_action'
 );
 
 CREATE TABLE trade_item_offers(
     trade_id integer NOT NULL,
-    character_id integer NOT NULL,
-    PRIMARY KEY(trade_id, character_id)
+    inhabitant_id integer NOT NULL,
+    item_id integer NOT NULL,
+    PRIMARY KEY(trade_id, inhabitant_id, item_id)
 );
 
 CREATE TABLE item_equips(
@@ -146,20 +147,21 @@ CREATE TABLE chirp_actions(
 --add foreign keys afterward now that all tables exist
 
 ALTER TABLE items
-ADD FOREIGN KEY(blueprint_id) REFERENCES item_blueprints(id);
+ADD FOREIGN KEY(blueprint_id) REFERENCES item_blueprints(id),
 ADD FOREIGN KEY(inhabitant_id) REFERENCES inhabitants(id);
 
 ALTER TABLE item_equips
-ADD FOREIGN KEY(inhabitant_id) REFERENCES inhabitants(id);
+ADD FOREIGN KEY(inhabitant_id) REFERENCES inhabitants(id),
 ADD FOREIGN KEY(item_id) REFERENCES items(id);
 
 ALTER TABLE trades
-ADD FOREIGN KEY(character_a_id) REFERENCES characters(id);
-ADD FOREIGN KEY(character_b_id) REFERENCES characters(id);
+ADD FOREIGN KEY(from_character_id) REFERENCES characters(id),
+ADD FOREIGN KEY(to_character_id) REFERENCES characters(id);
 
 ALTER TABLE trade_item_offers
-ADD FOREIGN KEY(trade_id) REFERENCES trades(id);
-ADD FOREIGN KEY(character_id) REFERENCES characters(id);
+ADD FOREIGN KEY(trade_id) REFERENCES trades(id),
+ADD FOREIGN KEY(inhabitant_id) REFERENCES inhabitants(id),
+ADD FOREIGN KEY(item_id) REFERENCES items(id);
 
 ALTER TABLE inhabitants
 ADD FOREIGN KEY(species_id) REFERENCES species(id);
@@ -192,3 +194,73 @@ ADD FOREIGN KEY(from_waypoint_id, to_waypoint_id) REFERENCES paths(from_waypoint
 
 ALTER TABLE chirp_actions
 ADD FOREIGN KEY(story_id) REFERENCES stories(id);
+
+-- triggers
+
+CREATE OR REPLACE function verify_can_change_trade_status()
+RETURNS trigger AS $function$
+BEGIN
+
+  -- ensure that if trade has already been confirmed by both characters,
+  -- it cannot be cancelled anymore.
+  IF OLD.from_status = 'confirmed' AND OLD.to_status = 'confirmed' THEN
+    IF NEW.from_status = 'cancelled' OR NEW.to_status = 'cancelled' THEN
+        RAISE EXCEPTION 'Cannot cancel a finished trade.';
+    END IF;
+  END IF;
+
+  -- ensure that if trade has been cancelled,
+  -- its status cannot be changed.
+  IF OLD.from_status = 'cancelled' OR OLD.to_status = 'cancelled' THEN
+      RAISE EXCEPTION 'Cannot change a cancelled trade.';
+  END IF;
+
+  -- ensure that if one party hasn't proposed yet,
+  -- neither party can confirm.
+  IF OLD.from_status = 'open' OR OLD.to_status = 'open' THEN
+    IF NEW.from_status = 'confirmed' OR NEW.to_status = 'confirmed' THEN
+        RAISE EXCEPTION 'Cannot confirm an open trade.';
+    END IF;
+  END IF;
+
+  RETURN NEW;
+END;
+$function$ LANGUAGE plpgsql;
+
+CREATE TRIGGER trades_changes
+BEFORE UPDATE ON trades
+FOR EACH ROW
+EXECUTE PROCEDURE verify_can_change_trade_status();
+
+-- ensure that if trade has not been accepted or has already been confirmed,
+-- trade_item_offers for trade cannot be changed.
+
+CREATE OR REPLACE function verify_can_change_item_offer()
+RETURNS trigger AS $function$
+BEGIN
+  DECLARE offer RECORD;
+  DECLARE trade RECORD;
+  BEGIN
+    offer := COALESCE(NEW, OLD);
+    SELECT * INTO trade FROM trades WHERE id = offer.trade_id;
+    IF ((trade.from_inhabitant_id = offer.inhabitant_id AND (
+        trade.from_status IN ('proposed', 'confirmed'))) OR
+      (trade.to_inhabitant_id = offer.inhabitant_id AND (
+        trade.to_status IN ('proposed', 'confirmed')))) THEN
+        RAISE EXCEPTION 'Cannot change a proposed trade.';
+    END IF;
+    IF (trade.from_status = 'no_action' OR trade.to_status = 'no_action') THEN
+        RAISE EXCEPTION 'Cannot change a trade that is not open yet.';
+    END IF;
+    IF (trade.from_status = 'cancelled' OR trade.to_status = 'cancelled') THEN
+        RAISE EXCEPTION 'Cannot change a cancelled trade.';
+    END IF;
+    RETURN offer;
+  END;
+END;
+$function$ LANGUAGE plpgsql;
+
+CREATE TRIGGER trade_item_offers_changes
+BEFORE INSERT OR UPDATE OR DELETE ON trade_item_offers
+FOR EACH ROW
+EXECUTE PROCEDURE verify_can_change_item_offer();

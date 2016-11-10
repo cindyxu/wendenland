@@ -6,6 +6,20 @@ var _ = require('lodash');
 describe("Server", function() {
 
 	var client = BPromise.promisifyAll(new pg.Client());
+	var logClient = {
+		queryAsync: function() {
+			var queryArgs = arguments;
+			return client.queryAsync.apply(client, arguments)
+				.catch(function(e) {
+					var values = undefined;
+					if (typeof queryArgs[1] !== 'function') {
+						values = queryArgs[1];
+					}
+					console.log("Query error:", queryArgs[0], values);
+					throw e;
+				});
+		}
+	};
 	var sandbox = sinon.sandbox.create();
 
 	before(function() {
@@ -28,19 +42,23 @@ describe("Server", function() {
 	});
 
 	describe("userHelper", function() {
-		require('./helpers/user')(client, sandbox);
+		require('./helpers/user')(logClient, sandbox);
 	});
 
 	describe("inhabitantHelper", function() {
-		require('./helpers/inhabitant')(client, sandbox);
+		require('./helpers/inhabitant')(logClient, sandbox);
 	});
 
 	describe("characterHelper", function() {
-		require('./helpers/character')(client, sandbox);
+		require('./helpers/character')(logClient, sandbox);
+	});
+
+	describe("tradeHelper", function() {
+		require('./helpers/trade')(logClient, sandbox);
 	});
 
 	describe("storyHelper", function() {
-		require('./helpers/story')(client, sandbox);
+		require('./helpers/story')(logClient, sandbox);
 	});
 
 });

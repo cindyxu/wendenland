@@ -21,9 +21,6 @@ module.exports = function(client, sandbox) {
 
     beforeEach(function() {
 
-      var speciesTable = tables.species;
-      var userTable = tables.users;
-
       return speciesSql.insertSpecies(client, "traveller", 0, 0, 0, 0)
         .then(function(species) {
           testSpecies = species;
