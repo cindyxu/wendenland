@@ -24,10 +24,10 @@ CREATE TYPE trade_status AS ENUM (
 CREATE TABLE species(
   id serial PRIMARY KEY,
   name text NOT NULL,
-  stat_str integer NOT NULL DEFAULT 0,
-  stat_dex integer NOT NULL DEFAULT 0,
   stat_int integer NOT NULL DEFAULT 0,
-  stat_luk integer NOT NULL DEFAULT 0
+  stat_dex integer NOT NULL DEFAULT 0,
+  stat_agi integer NOT NULL DEFAULT 0,
+  stat_vit integer NOT NULL DEFAULT 0
 );
 
 CREATE TABLE item_blueprints(
@@ -47,10 +47,10 @@ CREATE TABLE inhabitants(
   name text NOT NULL,
   species_id integer NOT NULL,
   party_id integer NOT NULL,
-  stat_str integer NOT NULL DEFAULT 0,
-  stat_dex integer NOT NULL DEFAULT 0,
   stat_int integer NOT NULL DEFAULT 0,
-  stat_luk integer NOT NULL DEFAULT 0
+  stat_dex integer NOT NULL DEFAULT 0,
+  stat_agi integer NOT NULL DEFAULT 0,
+  stat_vit integer NOT NULL DEFAULT 0
 );
 
 CREATE TABLE trades(
