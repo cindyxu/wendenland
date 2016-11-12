@@ -13,12 +13,13 @@ storySql.findStoryById = function(db, storyId) {
 };
 
 storySql.insertStory = function(
-  db, partyId, parentId, actionType, waypointId) {
+  db, partyId, waypointId, parentId, actionType, actionArgs) {
   var query = storyTable.insert(
       storyTable.parent_id.value(parentId),
       storyTable.waypoint_id.value(waypointId),
       storyTable.party_id.value(partyId),
-      storyTable.action_type.value(actionType)
+      storyTable.action_type.value(actionType),
+      storyTable.action_args.value(actionArgs)
       ).returning().toQuery();
   return db.queryAsync(query.text, query.values)
     .then(function(res) {

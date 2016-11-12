@@ -6,30 +6,23 @@ var Errors = require('../errors');
 var pageSql = require('../sql/page');
 var storySql = require('../sql/story');
 var partyHelper = require('./party');
-var actionHelper = require('./action');
 
 var storyHelper = {};
 
+// called AFTER resolving the new story.
 storyHelper.createStorySeq = function(
-  tr, partyId, pageTexts, parentId, actionProps, waypointId) {
+  tr, partyId, pageTexts, waypointId, parentId, actionType, actionArgs) {
 
   var partyId;
   var story;
 
-  var actionType = actionProps ? actionProps.type : undefined;
-  return storySql.insertStory(tr, partyId, parentId, actionType, waypointId)
+  return storySql.insertStory(
+    tr, partyId, waypointId, parentId, actionType, actionArgs)
 
     // add the pages to the database under new story
     .then(function(resStory) {
       story = resStory;
       return pageSql.insertPages(tr, pageTexts, story.id);
-    })
-
-    // add the action to the database under new story
-    .then(function() {
-      if (actionProps) {
-        return actionHelper.createAction(tr, story.id, actionProps);
-      } else return BPromise.resolve();
     })
 
     // party is now on new story

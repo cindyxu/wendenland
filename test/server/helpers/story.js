@@ -4,12 +4,10 @@ var chai = require('chai'),
 
 var tables = require('../../../bin/tables');
 var Errors = require('../../../server/errors');
-var ActionTypes = require('../../../server/action-types');
 
 var partySql = require('../../../server/sql/party');
 var mapSql = require('../../../server/sql/map');
 
-var actionHelper = require('../../../server/helpers/action');
 var partyHelper = require('../../../server/helpers/party');
 
 module.exports = function(client, sandbox) {
@@ -89,19 +87,29 @@ module.exports = function(client, sandbox) {
 
     describe("from a parent", function() {
 
-      var TEST_ACTION = { "type" : ActionTypes.CHIRP };
+      var TEST_ACTION_TYPE = 'testaction';
+      var TEST_ACTION_ARGS = ['testactionarg'];
       var testParentId;
 
       beforeEach(function() {
-        // create a test parent story
-        var parentQuery = tables.stories.insert(
-          tables.stories.party_id.value(testPartyId),
-          tables.stories.waypoint_id.value(testwaypoint1.id)
-        ).returning().toQuery();
-        return client.queryAsync(parentQuery.text, parentQuery.values)
+
+        // create action type
+        var actionQuery = tables.action_types.insert(
+          tables.action_types.type.value(TEST_ACTION_TYPE)).toQuery();
+        return client.queryAsync(actionQuery.text, actionQuery.values)
+          .then(function() {
+
+            // create a test parent story
+            var parentQuery = tables.stories.insert(
+              tables.stories.party_id.value(testPartyId),
+              tables.stories.waypoint_id.value(testwaypoint1.id)
+            ).returning().toQuery();
+            return client.queryAsync(parentQuery.text, parentQuery.values);
+          })
           .then(function(res) {
             testParentId = res.rows[0].id;
           });
+
       });
 
       describe("always", function() {
@@ -109,7 +117,8 @@ module.exports = function(client, sandbox) {
         var newStory;
         beforeEach(function() {
           return storyHelper.createStorySeq(client, testPartyId,
-            [TEST_PAGE_1_TEXT, TEST_PAGE_2_TEXT], testParentId, TEST_ACTION)
+            [TEST_PAGE_1_TEXT, TEST_PAGE_2_TEXT], undefined /* waypointId */,
+            testParentId, TEST_ACTION_TYPE, TEST_ACTION_ARGS)
             .then(function(resStory) {
               newStory = resStory;
             });
@@ -119,58 +128,54 @@ module.exports = function(client, sandbox) {
           assert.equal(newStory.parent_id, testParentId);
         });
 
-        it("should create an action", function() {
-          var actionQuery = tables.chirp_actions.select().where(
-            tables.chirp_actions.story_id.equals(newStory.id)).toQuery();
-          return client.queryAsync(actionQuery.text, actionQuery.values)
-            .then(function(res) {
-              assert.equal(res.rows.length, 1);
-            });
+        it("should assign action type and args", function() {
+          assert.equal(newStory.action_type, TEST_ACTION_TYPE);
+          assert.deepEqual(newStory.action_args, TEST_ACTION_ARGS);
         });
       });
 
-      describe("with move action", function() {
+      // describe("with move action", function() {
 
-        var TEST_WAYPOINT_2_NAME = "testwaypoint2";
-        var testwaypoint2;
-        var testPath;
+      //   var TEST_WAYPOINT_2_NAME = "testwaypoint2";
+      //   var testwaypoint2;
+      //   var testPath;
 
-        beforeEach(function() {
-          return mapSql.insertWaypoint(
-            client, map.id, TEST_WAYPOINT_2_NAME, 0, 0, 0, 0)
-            .then(function(resWaypoint) {
-              testwaypoint2 = resWaypoint;
-              return mapSql.insertPath(
-                client, testwaypoint1.id, testwaypoint2.id, "north");
-            })
-            .then(function(resPath) {
-              testPath = resPath;
-              var moveAction = {
-                "type" : ActionTypes.MOVE,
-                "fromWaypointId" : testwaypoint1.id,
-                "toWaypointId" : testwaypoint2.id,
-                "isSuccess" : false
-              };
-              return storyHelper.createStorySeq(client, testPartyId,
-                [TEST_PAGE_1_TEXT, TEST_PAGE_2_TEXT],
-                testParentId, moveAction);
-            })
-            .then(function(resStory) {
-              newStory = resStory;
-            });
-        });
+      //   beforeEach(function() {
+      //     return mapSql.insertWaypoint(
+      //       client, map.id, TEST_WAYPOINT_2_NAME, 0, 0, 0, 0)
+      //       .then(function(resWaypoint) {
+      //         testwaypoint2 = resWaypoint;
+      //         return mapSql.insertPath(
+      //           client, testwaypoint1.id, testwaypoint2.id, "north");
+      //       })
+      //       .then(function(resPath) {
+      //         testPath = resPath;
+      //         var moveAction = {
+      //           "type" : ActionTypes.MOVE,
+      //           "fromWaypointId" : testwaypoint1.id,
+      //           "toWaypointId" : testwaypoint2.id,
+      //           "isSuccess" : false
+      //         };
+      //         return storyHelper.createStorySeq(client, testPartyId,
+      //           [TEST_PAGE_1_TEXT, TEST_PAGE_2_TEXT],
+      //           testParentId, moveAction);
+      //       })
+      //       .then(function(resStory) {
+      //         newStory = resStory;
+      //       });
+      //   });
 
-        it("should create an action", function() {
-          var actionQuery = tables.move_actions.select().where(
-            tables.move_actions.story_id.equals(newStory.id)).toQuery();
-          return client.queryAsync(actionQuery.text, actionQuery.values)
-            .then(function(res) {
-              assert.equal(res.rows.length, 1);
-              assert.equal(res.rows[0].from_waypoint_id, testwaypoint1.id);
-              assert.equal(res.rows[0].to_waypoint_id, testwaypoint2.id);
-            });
-        });
-      });
+      //   it("should create an action", function() {
+      //     var actionQuery = tables.move_actions.select().where(
+      //       tables.move_actions.story_id.equals(newStory.id)).toQuery();
+      //     return client.queryAsync(actionQuery.text, actionQuery.values)
+      //       .then(function(res) {
+      //         assert.equal(res.rows.length, 1);
+      //         assert.equal(res.rows[0].from_waypoint_id, testwaypoint1.id);
+      //         assert.equal(res.rows[0].to_waypoint_id, testwaypoint2.id);
+      //       });
+      //   });
+      // });
     });
   });
 };

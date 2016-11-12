@@ -102,7 +102,7 @@ module.exports = function(client, sandbox) {
         .then(function(resItem) {
           testItemId = resItem.id;
           return tradeHelper.requestTrade(
-            client, testFromInhabitant.id, testToInhabitant.id)
+            client, testFromInhabitant.id, testToInhabitant.id);
         })
         .then(function(resTrade) {
           testTradeId = resTrade.id;
@@ -141,7 +141,7 @@ module.exports = function(client, sandbox) {
 
     describe("when trade is cancelled", function() {
       it("should fail to create offer for item", function() {
-        tradeHelper.cancelTrade(
+        return tradeHelper.cancelTrade(
           client, testTradeId, tradeSql.TO)
           .then(function() {
             return tradeHelper.addItemToTrade(
