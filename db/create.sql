@@ -147,8 +147,8 @@ ADD FOREIGN KEY(inhabitant_id) REFERENCES inhabitants(id),
 ADD FOREIGN KEY(item_id) REFERENCES items(id);
 
 ALTER TABLE trades
-ADD FOREIGN KEY(from_character_id) REFERENCES characters(id),
-ADD FOREIGN KEY(to_character_id) REFERENCES characters(id);
+ADD FOREIGN KEY(from_inhabitant_id) REFERENCES inhabitants(id),
+ADD FOREIGN KEY(to_inhabitant_id) REFERENCES inhabitants(id);
 
 ALTER TABLE trade_item_offers
 ADD FOREIGN KEY(trade_id) REFERENCES trades(id),
