@@ -19,13 +19,16 @@ mapSql.insertMap = function(db, name, x, y, width, height) {
       });
 };
 
-mapSql.insertWaypoint = function(db, mapId, name, x, y) {
+mapSql.insertWaypoint = function(
+  db, mapId, name, x, y, enterTreeId, leaveTreeId) {
   var query = waypointTable.insert(
     waypointTable.name.value(name),
     waypointTable.map_id.value(mapId),
     waypointTable.name.value(name),
     waypointTable.x.value(x),
-    waypointTable.y.value(y)
+    waypointTable.y.value(y),
+    waypointTable.enter_tree_id.value(enterTreeId),
+    waypointTable.leave_tree_id.value(leaveTreeId)
   ).returning().toQuery();
     return db.queryAsync(query.text, query.values)
       .then(function(res) {

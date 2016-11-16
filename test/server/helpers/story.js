@@ -7,6 +7,7 @@ var Errors = require('../../../server/errors');
 
 var partySql = require('../../../server/sql/party');
 var mapSql = require('../../../server/sql/map');
+var decisionTreeSql = require('../../../server/sql/decision-tree');
 
 var partyHelper = require('../../../server/helpers/party');
 
@@ -25,6 +26,7 @@ module.exports = function(client, sandbox) {
     var testwaypoint1;
 
     var testPartyId;
+    var testTreeId;
 
     beforeEach(function() {
       // create a test party
@@ -38,9 +40,18 @@ module.exports = function(client, sandbox) {
         .then(function(resMap) {
           map = resMap;
 
+          // create test decision tree
+          return client.queryAsync('SET CONSTRAINTS has_root_node DEFERRED');
+        })
+        .then(function() {
+          return decisionTreeSql.insertTreeWithRootNode(client);
+        })
+        .then(function(resTree) {
+          testTreeId = resTree.id;
+
           // create a test waypoint
           return mapSql.insertWaypoint(
-            client, map.id, TEST_WAYPOINT_1_NAME, 0, 0, 0, 0);
+            client, map.id, TEST_WAYPOINT_1_NAME, 0, 0, testTreeId);
         })
         .then(function(resWaypoint) {
           testwaypoint1 = resWaypoint;

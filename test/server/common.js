@@ -61,4 +61,8 @@ describe("Server", function() {
 		require('./helpers/story')(logClient, sandbox);
 	});
 
+	describe("decisionTreeHelper", function() {
+		require('./helpers/decision-tree')(logClient, sandbox);
+	});
+
 });

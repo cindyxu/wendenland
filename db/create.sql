@@ -105,13 +105,16 @@ CREATE TABLE waypoints(
   name text NOT NULL,
   map_id integer NOT NULL,
   x integer NOT NULL,
-  y integer NOT NULL
+  y integer NOT NULL,
+  enter_tree_id integer NOT NULL,
+  leave_tree_id integer
 );
 
 CREATE TABLE paths(
   from_waypoint_id integer NOT NULL,
   to_waypoint_id integer NOT NULL,
   dir direction NOT NULL,
+  tree_id integer,
   UNIQUE(from_waypoint_id, dir),
   PRIMARY KEY(from_waypoint_id, to_waypoint_id)
 );
@@ -134,6 +137,43 @@ CREATE TABLE pages(
 
 CREATE TABLE action_types(
   type text PRIMARY KEY
+);
+
+CREATE TABLE decision_trees(
+  id serial PRIMARY KEY,
+  root_node_id integer NOT NULL
+);
+
+CREATE TABLE decision_nodes(
+  id serial PRIMARY KEY,
+  tree_id integer NOT NULL
+);
+
+-- a condition on an edge in a decision tree. if condition passes, we go to
+-- the "if" node; otherwise we go to the "else" node.
+CREATE TABLE decision_condition_types(
+  type text PRIMARY KEY
+);
+
+CREATE TABLE decision_edges(
+  from_node_id integer PRIMARY KEY,
+  if_node_id integer NOT NULL,
+  else_node_id integer NOT NULL,
+  condition_type text,
+  condition_args text[]
+);
+
+-- an outcome on a node in a decision tree, which dictates the contents of the
+-- next story.
+CREATE TABLE decision_outcome_types(
+  type text PRIMARY KEY
+);
+
+CREATE TABLE decision_outcomes(
+  node_id integer NOT NULL,
+  idx smallint NOT NULL,
+  type text NOT NULL,
+  args text[]
 );
 
 --add foreign keys afterward now that all tables exist
@@ -166,11 +206,14 @@ ADD FOREIGN KEY(user_id) REFERENCES users(id),
 ADD FOREIGN KEY(inhabitant_id) REFERENCES inhabitants(id);
 
 ALTER TABLE waypoints
-ADD FOREIGN KEY(map_id) REFERENCES maps(id);
+ADD FOREIGN KEY(map_id) REFERENCES maps(id),
+ADD FOREIGN KEY(enter_tree_id) REFERENCES decision_trees(id),
+ADD FOREIGN KEY(leave_tree_id) REFERENCES decision_trees(id);
 
 ALTER TABLE paths
 ADD FOREIGN KEY(from_waypoint_id) REFERENCES waypoints(id),
-ADD FOREIGN KEY(to_waypoint_id) REFERENCES waypoints(id);
+ADD FOREIGN KEY(to_waypoint_id) REFERENCES waypoints(id),
+ADD FOREIGN KEY(tree_id) REFERENCES decision_trees(id);
 
 ALTER TABLE stories
 ADD FOREIGN KEY(parent_id) REFERENCES stories(id),
@@ -181,9 +224,18 @@ ADD FOREIGN KEY(action_type) REFERENCES action_types(type);
 ALTER TABLE pages
 ADD FOREIGN KEY(story_id) REFERENCES stories(id);
 
-ALTER TABLE actions
-ADD FOREIGN KEY(story_id) REFERENCES stories(id);
-ADD FOREIGN KEY(action_type) REFERENCES action_types(type);
+ALTER TABLE decision_trees
+ADD CONSTRAINT has_root_node FOREIGN KEY(root_node_id) REFERENCES decision_nodes(id) DEFERRABLE INITIALLY DEFERRED;
+
+ALTER TABLE decision_nodes
+ADD FOREIGN KEY(tree_id) REFERENCES decision_trees(id);
+
+ALTER TABLE decision_edges
+ADD FOREIGN KEY(condition_type) REFERENCES decision_condition_types(type);
+
+ALTER TABLE decision_outcomes
+ADD FOREIGN KEY(outcome_type) REFERENCES decision_outcome_types(type),
+ADD FOREIGN KEY(node_id) REFERENCES decision_nodes(id);
 
 -- triggers
 
